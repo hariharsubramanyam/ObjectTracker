@@ -1,0 +1,139 @@
+
+#include <iostream>
+#include <vector>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/tracking.hpp>
+
+#include "draw_utils.hpp"
+#include "kalman_helper.hpp"
+
+/**
+ * Check if there's another frame in the video capture. We do this by first checking if the user has quit (i.e. pressed
+ * the "Q" key) and then trying to retrieve the next frame of the video.
+ */
+bool hasFrame(cv::VideoCapture& capture) {
+    bool hasNotQuit = ((char) cv::waitKey(1)) != 'q';
+    bool hasAnotherFrame = capture.grab();
+    return hasNotQuit && hasAnotherFrame;
+}
+
+int main(int argc, char **argv) {
+    // Create the Kalman Filter.
+    std::unique_ptr<cv::KalmanFilter> KF = OT::KalmanHelper::makeKalmanFilter(0, 0);
+    
+    std::vector<cv::Point> trajectory;
+    cv::Mat frame;
+    cv::Mat thresh_frame;
+    std::vector<cv::Mat> channels;
+    cv::VideoCapture capture;
+    std::vector<cv::Vec4i> hierarchy;
+    std::vector<std::vector<cv::Point> > contours;
+
+    cv::Mat back;
+    cv::Mat fore;
+    cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
+    bg->setHistory(500);
+    bg->setNMixtures(3);
+    bg->setDetectShadows(false);
+    
+    cv::Point s;
+    cv::Point p;
+
+    if (argc > 1) {
+      capture.open(argv[1]);
+    } else {
+      capture.open(0);
+    }
+    
+    if(!capture.isOpened()) {
+        std::cerr << "Problem opening video source" << std::endl;
+    }
+    
+    trajectory.clear();
+
+    // Repeat while the user has not pressed "q" and while there's another frame.
+    while(hasFrame(capture)) {
+        capture.retrieve(frame);
+        bg->apply(frame, fore);
+        bg->getBackgroundImage(back);
+        cv::erode(fore,fore,cv::Mat());
+        cv::erode(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+        cv::dilate(fore,fore,cv::Mat());
+
+        cv::normalize(fore, fore, 0, 1., cv::NORM_MINMAX);
+        cv::threshold(fore, fore, .5, 1., CV_THRESH_BINARY);
+        
+        cv::split(frame, channels);
+        cv::add(channels[0], channels[1], channels[1]);
+        cv::subtract(channels[2], channels[1], channels[2]);
+        cv::threshold(channels[2], thresh_frame, 50, 255, CV_THRESH_BINARY);
+        cv::medianBlur(thresh_frame, thresh_frame, 5);
+
+        cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
+        std::vector<cv::Rect> boundRect( contours.size() );
+
+        cv::Mat drawing = cv::Mat::zeros(thresh_frame.size(), CV_8UC1);
+        for(size_t i = 0; i < contours.size(); i++) {
+            if(contourArea(contours[i]) > 3000) {
+                cv::drawContours(drawing,
+                                 contours,
+                                 i,
+                                 cv::Scalar::all(255),
+                                 CV_FILLED,
+                                 8,
+                                 std::vector<cv::Vec4i>(),
+                                 0,
+                                 cv::Point());
+            }
+        }
+        thresh_frame = drawing;
+        
+        // Get the moments
+        std::vector<cv::Moments> mu(contours.size() );
+        
+        for( size_t i = 0; i < contours.size(); i++ ) {
+            mu[i] = moments( contours[i], false );
+        }
+        
+        //  Get the mass centers:
+        std::vector<cv::Point2f> mc( contours.size() );
+        for( size_t i = 0; i < contours.size(); i++ ) {
+            mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+        }
+
+
+        for( size_t i = 0; i < contours.size(); i++ ) {
+            approxPolyDP( cv::Mat(contours[i]), contours_poly[i], 3, true );
+            boundRect[i] = boundingRect( cv::Mat(contours_poly[i]) );
+        }
+        
+        p = OT::KalmanHelper::predict(KF);
+        trajectory.push_back(p);
+        
+        for( size_t i = 0; i < contours.size(); i++ ) {
+            if(contourArea(contours[i]) > 1000) {
+                rectangle( frame, boundRect[i].tl(), boundRect[i].br(), cv::Scalar(0, 255, 0), 2, 8, 0 );
+                cv::Point center = cv::Point(boundRect[i].x + (boundRect[i].width /2),
+                                             boundRect[i].y + (boundRect[i].height/2));
+                cv::circle(frame,center, 8, cv::Scalar(0, 0, 255), -1, 1,0);
+                
+                s = OT::KalmanHelper::correct(KF, center.x, center.y);
+                OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
+                for (int i = trajectory.size()-20; i < trajectory.size()-1; i++) {
+                    line(frame, trajectory[i], trajectory[i+1], cv::Scalar(0,255,0), 1);
+                }
+            }
+        }
+        imshow("Video", frame);
+    }
+    return 0;
+}
