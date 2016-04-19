@@ -21,7 +21,7 @@ bool hasFrame(cv::VideoCapture& capture) {
 
 int main(int argc, char **argv) {
     // Create the Kalman Filter.
-    std::unique_ptr<cv::KalmanFilter> KF = OT::KalmanHelper::makeKalmanFilter(0, 0);
+    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0);
     
     std::vector<cv::Point> trajectory;
     cv::Mat frame;
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
             boundRect[i] = boundingRect( cv::Mat(contours_poly[i]) );
         }
         
-        p = OT::KalmanHelper::predict(KF);
+        p = KF->predict();
         trajectory.push_back(p);
         
         for( size_t i = 0; i < contours.size(); i++ ) {
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
                                              boundRect[i].y + (boundRect[i].height/2));
                 cv::circle(frame,center, 8, cv::Scalar(0, 0, 255), -1, 1,0);
                 
-                s = OT::KalmanHelper::correct(KF, center.x, center.y);
+                s = KF->correct(center.x, center.y);
                 OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
                 for (int i = trajectory.size()-20; i < trajectory.size()-1; i++) {
                     line(frame, trajectory[i], trajectory[i+1], cv::Scalar(0,255,0), 1);
