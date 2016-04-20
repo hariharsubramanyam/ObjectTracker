@@ -24,8 +24,6 @@ int main(int argc, char **argv) {
     std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
 
     cv::Mat frame;
-    cv::Mat thresh_frame;
-    std::vector<cv::Mat> channels;
     cv::VideoCapture capture;
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
@@ -35,7 +33,7 @@ int main(int argc, char **argv) {
     cv::Mat back;
     cv::Mat fore;
     cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
-    bg->setHistory(500);
+    bg->setHistory(1000);
     bg->setNMixtures(3);
     bg->setDetectShadows(false);
     
@@ -60,36 +58,28 @@ int main(int argc, char **argv) {
         bg->getBackgroundImage(back);
         cv::medianBlur(fore, fore, 5);
         cv::dilate(fore, fore, cv::Mat());
-        imshow("Threshold", fore);
+        cv::imshow("Threshold", fore);
 
         cv::normalize(fore, fore, 0, 1., cv::NORM_MINMAX);
         cv::threshold(fore, fore, .3, 1., CV_THRESH_BINARY);
-        
-        cv::split(frame, channels);
-        cv::add(channels[0], channels[1], channels[1]);
-        cv::subtract(channels[2], channels[1], channels[2]);
-        cv::threshold(channels[2], thresh_frame, 50, 255, CV_THRESH_BINARY);
-        cv::medianBlur(thresh_frame, thresh_frame, 5);
 
         cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
         std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
         std::vector<cv::Rect> boundRect( contours.size() );
 
-        cv::Mat drawing = cv::Mat::zeros(thresh_frame.size(), CV_8UC1);
+        cv::Mat drawing = cv::Mat::zeros(fore.size(), CV_8UC1);
         for(size_t i = 0; i < contours.size(); i++) {
-            if(contourArea(contours[i]) > 3000) {
-                cv::drawContours(drawing,
-                                 contours,
-                                 i,
-                                 cv::Scalar::all(255),
-                                 CV_FILLED,
-                                 8,
-                                 std::vector<cv::Vec4i>(),
-                                 0,
-                                 cv::Point());
-            }
+            cv::drawContours(drawing,
+                             contours,
+                             i,
+                             cv::Scalar::all(255),
+                             CV_FILLED,
+                             8,
+                             std::vector<cv::Vec4i>(),
+                             0,
+                             cv::Point());
         }
-        thresh_frame = drawing;
+        cv::imshow("Contours", drawing);
         
         // Get the moments
         std::vector<cv::Moments> mu(contours.size() );
