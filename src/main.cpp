@@ -58,18 +58,12 @@ int main(int argc, char **argv) {
         capture.retrieve(frame);
         bg->apply(frame, fore);
         bg->getBackgroundImage(back);
-        cv::erode(fore,fore,cv::Mat());
-        cv::erode(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
-        cv::dilate(fore,fore,cv::Mat());
+        cv::medianBlur(fore, fore, 5);
+        cv::dilate(fore, fore, cv::Mat());
+        imshow("Threshold", fore);
 
         cv::normalize(fore, fore, 0, 1., cv::NORM_MINMAX);
-        cv::threshold(fore, fore, .5, 1., CV_THRESH_BINARY);
+        cv::threshold(fore, fore, .3, 1., CV_THRESH_BINARY);
         
         cv::split(frame, channels);
         cv::add(channels[0], channels[1], channels[1]);
