@@ -20,25 +20,6 @@ bool hasFrame(cv::VideoCapture& capture) {
 }
 
 /**
- * Given an image, select the contours whose area exceeds the given threshold and draw them on the image.
- */
-void drawContoursWithThreshold(cv::Mat& drawing, const std::vector<std::vector<cv::Point>>& contours, size_t contourSizeThreshold) {
-    for(size_t i = 0; i < contours.size(); i++) {
-        if (contourArea(contours[i]) > contourSizeThreshold) {
-            cv::drawContours(drawing,
-                             contours,
-                             i,
-                             cv::Scalar::all(255),
-                             CV_FILLED,
-                             8,
-                             std::vector<cv::Vec4i>(),
-                             0,
-                             cv::Point());
-        }
-    }
-}
-
-/**
  * Extract the center of mass for the given contours.
  */
 void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
@@ -113,8 +94,20 @@ int main(int argc, char **argv) {
 
         cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
         
+        std::remove_copy_if(contours.begin(), contours.end(), contours.begin(), [](std::vector<cv::Point> contour) {
+            return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
+        });
+        
         cv::Mat drawing = cv::Mat::zeros(fore.size(), CV_8UC1);
-        drawContoursWithThreshold(drawing, contours, CONTOUR_SIZE_THRESHOLD);
+        cv::drawContours(drawing,
+                         contours,
+                         -1,
+                         cv::Scalar::all(255),
+                         CV_FILLED,
+                         8,
+                         std::vector<cv::Vec4i>(),
+                         0,
+                         cv::Point());
         cv::imshow("Contours", drawing);
         
         std::vector<cv::Point2f> mc(contours.size());
