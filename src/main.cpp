@@ -20,16 +20,17 @@ bool hasFrame(cv::VideoCapture& capture) {
 }
 
 int main(int argc, char **argv) {
-    // Create the Kalman Filter.
-    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0);
-    
-    std::vector<cv::Point> trajectory;
+    // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
+    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
+
     cv::Mat frame;
     cv::Mat thresh_frame;
     std::vector<cv::Mat> channels;
     cv::VideoCapture capture;
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
+    
+    std::unique_ptr<std::list<OT::TrajectorySegment>> trajectorySegments;
 
     cv::Mat back;
     cv::Mat fore;
@@ -50,8 +51,7 @@ int main(int argc, char **argv) {
     if(!capture.isOpened()) {
         std::cerr << "Problem opening video source" << std::endl;
     }
-    
-    trajectory.clear();
+
 
     // Repeat while the user has not pressed "q" and while there's another frame.
     while(hasFrame(capture)) {
@@ -117,7 +117,6 @@ int main(int argc, char **argv) {
         }
         
         p = KF->predict();
-        trajectory.push_back(p);
         
         for( size_t i = 0; i < contours.size(); i++ ) {
             if(contourArea(contours[i]) > 1000) {
@@ -128,8 +127,11 @@ int main(int argc, char **argv) {
                 
                 s = KF->correct(center.x, center.y);
                 OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
-                for (int i = trajectory.size()-20; i < trajectory.size()-1; i++) {
-                    line(frame, trajectory[i], trajectory[i+1], cv::Scalar(0,255,0), 1);
+                
+                // Draw the trajectory.
+                trajectorySegments = KF->getTrajectorySegments();
+                for (OT::TrajectorySegment segment : *trajectorySegments) {
+                    line(frame, segment.start, segment.end, cv::Scalar(0, 255, 0), 1);
                 }
             }
         }
