@@ -29,8 +29,8 @@ namespace OT {
     public:
         KalmanHelper(float x, float y, size_t maxTrajectorySize = 100);
         
-        // Get the trajectory of this object as a list of line segments.
-        std::unique_ptr<std::list<TrajectorySegment>> getTrajectorySegments();
+        // Get the trajectory of this object as a list of line segments. Put the resulting segments in the given list.
+        void getTrajectorySegments(std::list<TrajectorySegment> *segments);
         
         cv::Point predict();
         cv::Point correct(float x, float y);

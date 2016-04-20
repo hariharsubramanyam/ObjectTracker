@@ -57,8 +57,8 @@ namespace OT {
         this->trajectory->push_back(pt);
     }
     
-    std::unique_ptr<std::list<TrajectorySegment>> KalmanHelper::getTrajectorySegments() {
-        auto segments = std::make_unique<std::list<TrajectorySegment>>();
+    void KalmanHelper::getTrajectorySegments(std::list<TrajectorySegment> *segments) {
+        segments->clear();
         cv::Point prevPt;
         bool hasPrevPt = false;
         for (auto pt : *this->trajectory) {
@@ -69,6 +69,5 @@ namespace OT {
             }
             prevPt = pt;
         }
-        return segments;
     }
 }

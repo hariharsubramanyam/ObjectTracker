@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
     
-    std::unique_ptr<std::list<OT::TrajectorySegment>> trajectorySegments;
+    std::list<OT::TrajectorySegment> trajectorySegments;
     cv::Mat fore;
     cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
     bg->setHistory(1000);
@@ -141,9 +141,9 @@ int main(int argc, char **argv) {
             s = KF->correct(center.x, center.y);
             OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
                 
-                // Draw the trajectory.
-            trajectorySegments = KF->getTrajectorySegments();
-            for (OT::TrajectorySegment segment : *trajectorySegments) {
+            // Draw the trajectory.
+            KF->getTrajectorySegments(&trajectorySegments);
+            for (OT::TrajectorySegment segment : trajectorySegments) {
                 line(frame, segment.start, segment.end, cv::Scalar(0, 255, 0), 1);
             }
         }
