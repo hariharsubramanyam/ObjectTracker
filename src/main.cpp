@@ -46,6 +46,9 @@ void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
     }
 }
 
+/**
+ * Remove contours if they are are too small.
+ */
 void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
     const size_t CONTOUR_SIZE_THRESHOLD = 1000;
     auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {

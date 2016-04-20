@@ -7,11 +7,13 @@ set( NAME_SRC
     src/main.cpp
     src/draw_utils.cpp
     src/kalman_helper.cpp
+    src/multi_object_tracker.cpp
 )
 
 set( NAME_HEADERS
     include/draw_utils.hpp
     include/kalman_helper.hpp
+    include/multi_object_tracker.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
