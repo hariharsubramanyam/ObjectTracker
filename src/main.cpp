@@ -69,15 +69,17 @@ int main(int argc, char **argv) {
 
         cv::Mat drawing = cv::Mat::zeros(fore.size(), CV_8UC1);
         for(size_t i = 0; i < contours.size(); i++) {
-            cv::drawContours(drawing,
-                             contours,
-                             i,
-                             cv::Scalar::all(255),
-                             CV_FILLED,
-                             8,
-                             std::vector<cv::Vec4i>(),
-                             0,
-                             cv::Point());
+            if (contourArea(contours[i]) > 1000) {
+                cv::drawContours(drawing,
+                                 contours,
+                                 i,
+                                 cv::Scalar::all(255),
+                                 CV_FILLED,
+                                 8,
+                                 std::vector<cv::Vec4i>(),
+                                 0,
+                                 cv::Point());                
+            }
         }
         cv::imshow("Contours", drawing);
         
