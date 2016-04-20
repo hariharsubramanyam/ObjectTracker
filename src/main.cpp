@@ -56,12 +56,15 @@ int main(int argc, char **argv) {
         capture.retrieve(frame);
         bg->apply(frame, fore);
         bg->getBackgroundImage(back);
+        
+        // Get rid little specks of noise by doing a median blur.
+        // The median blur is good for salt-and-pepper noise, not Gaussian noise.
         cv::medianBlur(fore, fore, 5);
+        
+        // Dilate the image to make the blobs larger.
         cv::dilate(fore, fore, cv::Mat());
+        
         cv::imshow("Threshold", fore);
-
-        cv::normalize(fore, fore, 0, 1., cv::NORM_MINMAX);
-        cv::threshold(fore, fore, .3, 1., CV_THRESH_BINARY);
 
         cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
         std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
@@ -78,7 +81,7 @@ int main(int argc, char **argv) {
                                  8,
                                  std::vector<cv::Vec4i>(),
                                  0,
-                                 cv::Point());                
+                                 cv::Point());
             }
         }
         cv::imshow("Contours", drawing);
