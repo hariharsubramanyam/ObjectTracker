@@ -46,6 +46,14 @@ void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
     }
 }
 
+void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
+    const size_t CONTOUR_SIZE_THRESHOLD = 1000;
+    auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
+        return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
+    });
+    contours.erase(removeThese, contours.end());
+}
+
 /**
  * Draw the contours in a new image and show them.
  */
@@ -69,14 +77,11 @@ void contourShow(std::string drawingName, const std::vector<std::vector<cv::Poin
 int main(int argc, char **argv) {
     // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
     std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
-    
-    const size_t CONTOUR_SIZE_THRESHOLD = 500;
 
     cv::Mat frame;
     cv::VideoCapture capture;
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
-    std::vector<std::vector<cv::Point> > contoursBuffer;
     
     std::unique_ptr<std::list<OT::TrajectorySegment>> trajectorySegments;
     cv::Mat fore;
@@ -111,19 +116,16 @@ int main(int argc, char **argv) {
         // Dilate the image to make the blobs larger.
         cv::dilate(fore, fore, cv::Mat());
         
-        cv::imshow("Threshold", fore);
+        // Display the forground.
+        cv::imshow("Foreground", fore);
 
-        cv::findContours(fore, contoursBuffer, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-        contours.clear();
+        // Find the contours.
+        cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
         
-        for (auto contour : contoursBuffer) {
-            if (cv::contourArea(contour) > CONTOUR_SIZE_THRESHOLD) {
-                contours.push_back(contour);
-            }
-        }
-        
-        
+        // Keep only those contours that are sufficiently large.
+        filterOutBadContours(contours);
         contourShow("Contours", contours, fore.size());
+        
         
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
@@ -132,10 +134,7 @@ int main(int argc, char **argv) {
         p = KF->predict();
         
         for( size_t i = 0; i < contours.size(); i++ ) {
-            rectangle( frame, boundRect[i].tl(), boundRect[i].br(), cv::Scalar(0, 255, 0), 2, 8, 0 );
-            cv::Point center = cv::Point(boundRect[i].x + (boundRect[i].width /2),
-                                         boundRect[i].y + (boundRect[i].height/2));
-            cv::circle(frame,center, 8, cv::Scalar(0, 0, 255), -1, 1,0);
+            cv::Point center = OT::DrawUtils::drawBoundingRect(frame, boundRect[i]);
             s = KF->correct(center.x, center.y);
             OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
                 

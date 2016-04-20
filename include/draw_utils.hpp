@@ -17,6 +17,9 @@ namespace OT {
        const cv::Point& center,
        const cv::Scalar color,
        const int diameter);
+      
+      cv::Point drawBoundingRect(cv::Mat& img,
+                            const cv::Rect& boundingRect);
   }
 }
 

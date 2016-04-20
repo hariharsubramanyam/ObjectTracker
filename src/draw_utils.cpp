@@ -3,14 +3,6 @@
 
 namespace OT {
   namespace DrawUtils {
-    /**
-     * Draw a cross on the image.
-     *
-     * img - The image
-     * center - The center of the cross.
-     * color - The RGB color.
-     * diameter - The diameter of the cross.
-     */
      void drawCross(const cv::Mat& img,
        const cv::Point& center,
        const cv::Scalar color,
@@ -23,5 +15,20 @@ namespace OT {
          cv::Point p4 = cv::Point(center.x - diameter, center.y + diameter);
          line(img, p3, p4, color, 2, CV_AA, 0);
      }
+      
+      cv::Point drawBoundingRect(cv::Mat& img,
+                            const cv::Rect& boundingRect) {
+          cv::rectangle(img,
+                        boundingRect.tl(),
+                        boundingRect.br(),
+                        cv::Scalar(0, 255, 0),
+                        2,
+                        8,
+                        0);
+          cv::Point center = cv::Point(boundingRect.x + (boundingRect.width /2),
+                                       boundingRect.y + (boundingRect.height/2));
+          cv::circle(img,center, 8, cv::Scalar(0, 0, 255), -1, 1,0);
+          return center;
+      }
   }
 }
