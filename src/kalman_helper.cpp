@@ -6,8 +6,10 @@
 #include "kalman_helper.hpp"
 
 namespace OT {
-    KalmanHelper::KalmanHelper(float x, float y) {
+    KalmanHelper::KalmanHelper(float x, float y, size_t maxTrajectorySize) {
+        this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
+        this->trajectory = std::make_shared<std::list<cv::Point>>();
         
         // Initialize filter with 4 dynamic parameters (x, y, x velocity, y
         // velocity), 2 measurement parameters (x, y), and no control parameters.
@@ -44,6 +46,29 @@ namespace OT {
         cv::Point predictedPt(prediction.at<float>(0), prediction.at<float>(1));
         this->kf->statePre.copyTo(this->kf->statePost);
         this->kf->errorCovPre.copyTo(this->kf->errorCovPost);
+        this->addPointToTrajectory(predictedPt);
         return predictedPt;
+    }
+    
+    void KalmanHelper::addPointToTrajectory(cv::Point pt) {
+        if (this->trajectory->size() >= this->maxTrajectorySize) {
+            this->trajectory->pop_front();
+        }
+        this->trajectory->push_back(pt);
+    }
+    
+    std::unique_ptr<std::list<TrajectorySegment>> KalmanHelper::getTrajectorySegments() {
+        auto segments = std::make_unique<std::list<TrajectorySegment>>();
+        cv::Point prevPt;
+        bool hasPrevPt = false;
+        for (auto pt : *this->trajectory) {
+            if (hasPrevPt) {
+                segments->push_back(TrajectorySegment{prevPt, pt});
+            } else {
+                hasPrevPt = true;
+            }
+            prevPt = pt;
+        }
+        return segments;
     }
 }
