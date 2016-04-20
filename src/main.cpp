@@ -19,9 +19,57 @@ bool hasFrame(cv::VideoCapture& capture) {
     return hasNotQuit && hasAnotherFrame;
 }
 
+/**
+ * Given an image, select the contours whose area exceeds the given threshold and draw them on the image.
+ */
+void drawContoursWithThreshold(cv::Mat& drawing, const std::vector<std::vector<cv::Point>>& contours, size_t contourSizeThreshold) {
+    for(size_t i = 0; i < contours.size(); i++) {
+        if (contourArea(contours[i]) > contourSizeThreshold) {
+            cv::drawContours(drawing,
+                             contours,
+                             i,
+                             cv::Scalar::all(255),
+                             CV_FILLED,
+                             8,
+                             std::vector<cv::Vec4i>(),
+                             0,
+                             cv::Point());
+        }
+    }
+}
+
+/**
+ * Extract the center of mass for the given contours.
+ */
+void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
+                                std::vector<cv::Point2f>& massCenters,
+                                std::vector<cv::Rect>& boundingBoxes) {
+    // Empty the vectors.
+    massCenters.clear();
+    boundingBoxes.clear();
+    
+    // Create local variables.
+    cv::Moments contourMoments;
+    std::vector<std::vector<cv::Point> > contourPolygons(contours.size());
+    
+    // Iterate through every contour.
+    for (size_t i = 0; i < contours.size(); i++) {
+        // Compute the center of mass.
+        contourMoments = cv::moments(contours[i], false);
+        massCenters.push_back(cv::Point2f(contourMoments.m10/contourMoments.m00, contourMoments.m01/contourMoments.m00));
+        
+        // Compute the polygon represented by the contour, and then compute the bounding box around that polygon.
+        cv::approxPolyDP(cv::Mat(contours[i]), contourPolygons[i], 3, true);
+        boundingBoxes.push_back(cv::boundingRect(cv::Mat(contourPolygons[i])));
+    }
+}
+
+
 int main(int argc, char **argv) {
     // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
     std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
+    
+    const size_t CONTOUR_SIZE_THRESHOLD = 1000;
 
     cv::Mat frame;
     cv::VideoCapture capture;
@@ -29,8 +77,6 @@ int main(int argc, char **argv) {
     std::vector<std::vector<cv::Point> > contours;
     
     std::unique_ptr<std::list<OT::TrajectorySegment>> trajectorySegments;
-
-    cv::Mat back;
     cv::Mat fore;
     cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
     bg->setHistory(1000);
@@ -55,7 +101,6 @@ int main(int argc, char **argv) {
     while(hasFrame(capture)) {
         capture.retrieve(frame);
         bg->apply(frame, fore);
-        bg->getBackgroundImage(back);
         
         // Get rid little specks of noise by doing a median blur.
         // The median blur is good for salt-and-pepper noise, not Gaussian noise.
@@ -67,48 +112,19 @@ int main(int argc, char **argv) {
         cv::imshow("Threshold", fore);
 
         cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-        std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
-        std::vector<cv::Rect> boundRect( contours.size() );
-
+        
         cv::Mat drawing = cv::Mat::zeros(fore.size(), CV_8UC1);
-        for(size_t i = 0; i < contours.size(); i++) {
-            if (contourArea(contours[i]) > 1000) {
-                cv::drawContours(drawing,
-                                 contours,
-                                 i,
-                                 cv::Scalar::all(255),
-                                 CV_FILLED,
-                                 8,
-                                 std::vector<cv::Vec4i>(),
-                                 0,
-                                 cv::Point());
-            }
-        }
+        drawContoursWithThreshold(drawing, contours, CONTOUR_SIZE_THRESHOLD);
         cv::imshow("Contours", drawing);
         
-        // Get the moments
-        std::vector<cv::Moments> mu(contours.size() );
-        
-        for( size_t i = 0; i < contours.size(); i++ ) {
-            mu[i] = moments( contours[i], false );
-        }
-        
-        //  Get the mass centers:
-        std::vector<cv::Point2f> mc( contours.size() );
-        for( size_t i = 0; i < contours.size(); i++ ) {
-            mc[i] = cv::Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
-        }
-
-
-        for( size_t i = 0; i < contours.size(); i++ ) {
-            approxPolyDP( cv::Mat(contours[i]), contours_poly[i], 3, true );
-            boundRect[i] = boundingRect( cv::Mat(contours_poly[i]) );
-        }
+        std::vector<cv::Point2f> mc(contours.size());
+        std::vector<cv::Rect> boundRect(contours.size());
+        getCentersAndBoundingBoxes(contours, mc, boundRect);
         
         p = KF->predict();
         
         for( size_t i = 0; i < contours.size(); i++ ) {
-            if(contourArea(contours[i]) > 1000) {
+            if(contourArea(contours[i]) > CONTOUR_SIZE_THRESHOLD) {
                 rectangle( frame, boundRect[i].tl(), boundRect[i].br(), cv::Scalar(0, 255, 0), 2, 8, 0 );
                 cv::Point center = cv::Point(boundRect[i].x + (boundRect[i].width /2),
                                              boundRect[i].y + (boundRect[i].height/2));
