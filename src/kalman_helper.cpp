@@ -11,7 +11,8 @@ namespace OT {
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
         this->numFramesWithoutUpdate = 0;
-        this->previousPoint = cv::Point(startPt.x, startPt.y);
+        this->previousPoint = startPt;
+        this->prediction = startPt;
         
         // Initialize filter with 4 dynamic parameters (x, y, x velocity, y
         // velocity), 2 measurement parameters (x, y), and no control parameters.
@@ -35,7 +36,6 @@ namespace OT {
     }
     
     cv::Point KalmanHelper::correct(cv::Point pt) {
-        this->numFramesWithoutUpdate = 0;
         cv::Mat_<float> measurement = cv::Mat_<float>::zeros(2, 1);
         measurement(0) = pt.x;
         measurement(1) = pt.y;
@@ -55,7 +55,12 @@ namespace OT {
         this->kf->statePre.copyTo(this->kf->statePost);
         this->kf->errorCovPre.copyTo(this->kf->errorCovPost);
         this->addPointToTrajectory(predictedPt);
+        this->prediction = predictedPt;
         return predictedPt;
+    }
+    
+    cv::Point KalmanHelper::latestPrediction() {
+        return this->prediction;
     }
     
     void KalmanHelper::addPointToTrajectory(cv::Point pt) {
@@ -85,5 +90,9 @@ namespace OT {
     
     const int KalmanHelper::getNumFramesWithoutUpdate() {
         return this->numFramesWithoutUpdate;
+    }
+    
+    void KalmanHelper::gotUpdate() {
+        this->numFramesWithoutUpdate = 0;
     }
 }

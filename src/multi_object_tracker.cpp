@@ -19,7 +19,7 @@ namespace OT {
         this->kalmanTrackers = std::make_unique<std::vector<OT::KalmanHelper>>();
     }
     
-    void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters) {
+    void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters, std::vector<cv::Point>& outputPredictions) {
         // If there are no Kalman trackers, make one for each detection.
         if (this->kalmanTrackers->empty()) {
             for (auto massCenter : massCenters) {
@@ -95,10 +95,17 @@ namespace OT {
             this->kalmanTrackers->at(i).predict();
             if (assignment[i] != -1) {
                 this->kalmanTrackers->at(i).correct(massCenters[assignment[i]]);
+                this->kalmanTrackers->at(i).gotUpdate();
             } else {
                 // Otherwise update this with the previous step's measurement.
                 this->kalmanTrackers->at(i).correct();
             }
+        }
+        
+        // Now update the predictions.
+        outputPredictions.clear();
+        for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
+            outputPredictions.push_back(this->kalmanTrackers->at(i).latestPrediction());
         }
     }
 }

@@ -30,6 +30,9 @@ namespace OT {
         
         cv::Point previousPoint;
         
+        // Store the latest prediction.
+        cv::Point prediction;
+        
         void addPointToTrajectory(cv::Point pt);
     public:
         KalmanHelper(cv::Point startPt, size_t maxTrajectorySize = 100);
@@ -42,7 +45,11 @@ namespace OT {
         // Indicate to this Kalman filter that it did not get an update this frame.
         void noUpdateThisFrame();
         
+        // Indicate that the Kalman filter was updated this frame.
+        void gotUpdate();
+        
         cv::Point predict();
+        cv::Point latestPrediction();
         cv::Point correct(cv::Point pt);
         cv::Point correct();
     };

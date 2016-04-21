@@ -51,7 +51,7 @@ void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
  * Remove contours if they are are too small.
  */
 void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
-    const size_t CONTOUR_SIZE_THRESHOLD = 0;
+    const size_t CONTOUR_SIZE_THRESHOLD = 1000;
     auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
         return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
     });
@@ -79,10 +79,6 @@ void contourShow(std::string drawingName, const std::vector<std::vector<cv::Poin
 
 
 int main(int argc, char **argv) {
-    // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
-    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(cv::Point(0, 0), 20);
-
-    
     std::unique_ptr<OT::MultiObjectTracker> tracker = nullptr;
 
     cv::Mat frame;
@@ -140,21 +136,24 @@ int main(int argc, char **argv) {
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
         getCentersAndBoundingBoxes(contours, mc, boundRect);
-        tracker->update(mc);
         
-        p = KF->predict();
+        std::vector<cv::Point> predictions;
+        tracker->update(mc, predictions);
         
-        for( size_t i = 0; i < contours.size(); i++ ) {
-            cv::Point center = OT::DrawUtils::drawBoundingRect(frame, boundRect[i]);
-            s = KF->correct(center);
-            OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
-                
-            // Draw the trajectory.
-            KF->getTrajectorySegments(&trajectorySegments);
-            for (OT::TrajectorySegment segment : trajectorySegments) {
-                line(frame, segment.start, segment.end, cv::Scalar(0, 255, 0), 1);
-            }
+        for (auto pred : predictions) {
+            OT::DrawUtils::drawCross(frame, pred, cv::Scalar(255, 255, 255), 5);
         }
+        
+//        for( size_t i = 0; i < contours.size(); i++ ) {
+//            cv::Point center = OT::DrawUtils::drawBoundingRect(frame, boundRect[i]);
+//            OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
+//                
+//            // Draw the trajectory.
+//            KF->getTrajectorySegments(&trajectorySegments);
+//            for (OT::TrajectorySegment segment : trajectorySegments) {
+//                line(frame, segment.start, segment.end, cv::Scalar(0, 255, 0), 1);
+//            }
+//        }
         imshow("Video", frame);
     }
     return 0;
