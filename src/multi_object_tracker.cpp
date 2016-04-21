@@ -7,7 +7,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "kalman_helper.hpp"
+#include "kalman_tracker.hpp"
 #include "hungarian.hpp"
 
 #define DISTANCE_THRESHOLD 60.0
@@ -16,14 +16,14 @@
 namespace OT {
     MultiObjectTracker::MultiObjectTracker(cv::Size frameSize) {
         this->frameSize = frameSize;
-        this->kalmanTrackers = std::make_unique<std::vector<OT::KalmanHelper>>();
+        this->kalmanTrackers = std::make_unique<std::vector<OT::KalmanTracker>>();
     }
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters, std::vector<cv::Point>& outputPredictions) {
         // If there are no Kalman trackers, make one for each detection.
         if (this->kalmanTrackers->empty()) {
             for (auto massCenter : massCenters) {
-                this->kalmanTrackers->push_back(OT::KalmanHelper(massCenter));
+                this->kalmanTrackers->push_back(OT::KalmanTracker(massCenter));
             }
         }
         
@@ -87,7 +87,7 @@ namespace OT {
         
         // Create new trackers for the unassigned mass centers.
         for (size_t i = 0; i < centersWithoutKalman.size(); i++) {
-            this->kalmanTrackers->push_back(OT::KalmanHelper(massCenters[centersWithoutKalman[i]]));
+            this->kalmanTrackers->push_back(OT::KalmanTracker(massCenters[centersWithoutKalman[i]]));
         }
         
         // Update the Kalman filters.

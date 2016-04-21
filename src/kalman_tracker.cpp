@@ -3,10 +3,10 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include "kalman_helper.hpp"
+#include "kalman_tracker.hpp"
 
 namespace OT {
-    KalmanHelper::KalmanHelper(cv::Point startPt, size_t maxTrajectorySize) {
+    KalmanTracker::KalmanTracker(cv::Point startPt, size_t maxTrajectorySize) {
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
@@ -35,7 +35,7 @@ namespace OT {
         cv::setIdentity(this->kf->errorCovPost, cv::Scalar::all(0.1));
     }
     
-    cv::Point KalmanHelper::correct(cv::Point pt) {
+    cv::Point KalmanTracker::correct(cv::Point pt) {
         cv::Mat_<float> measurement = cv::Mat_<float>::zeros(2, 1);
         measurement(0) = pt.x;
         measurement(1) = pt.y;
@@ -45,11 +45,11 @@ namespace OT {
         return statePt;
     }
     
-    cv::Point KalmanHelper::correct() {
+    cv::Point KalmanTracker::correct() {
         return this->correct(this->previousPoint);
     }
     
-    cv::Point KalmanHelper::predict() {
+    cv::Point KalmanTracker::predict() {
         cv::Mat prediction = this->kf->predict();
         cv::Point predictedPt(prediction.at<float>(0), prediction.at<float>(1));
         this->kf->statePre.copyTo(this->kf->statePost);
@@ -59,18 +59,18 @@ namespace OT {
         return predictedPt;
     }
     
-    cv::Point KalmanHelper::latestPrediction() {
+    cv::Point KalmanTracker::latestPrediction() {
         return this->prediction;
     }
     
-    void KalmanHelper::addPointToTrajectory(cv::Point pt) {
+    void KalmanTracker::addPointToTrajectory(cv::Point pt) {
         if (this->trajectory->size() >= this->maxTrajectorySize) {
             this->trajectory->pop_front();
         }
         this->trajectory->push_back(pt);
     }
     
-    void KalmanHelper::getTrajectorySegments(std::list<TrajectorySegment> *segments) {
+    void KalmanTracker::getTrajectorySegments(std::list<TrajectorySegment> *segments) {
         segments->clear();
         cv::Point prevPt;
         bool hasPrevPt = false;
@@ -84,15 +84,15 @@ namespace OT {
         }
     }
     
-    void KalmanHelper::noUpdateThisFrame() {
+    void KalmanTracker::noUpdateThisFrame() {
         this->numFramesWithoutUpdate++;
     }
     
-    const int KalmanHelper::getNumFramesWithoutUpdate() {
+    const int KalmanTracker::getNumFramesWithoutUpdate() {
         return this->numFramesWithoutUpdate;
     }
     
-    void KalmanHelper::gotUpdate() {
+    void KalmanTracker::gotUpdate() {
         this->numFramesWithoutUpdate = 0;
     }
 }

@@ -8,7 +8,6 @@
 #include <opencv2/video/tracking.hpp>
 
 #include "draw_utils.hpp"
-#include "kalman_helper.hpp"
 #include "multi_object_tracker.hpp"
 
 /**

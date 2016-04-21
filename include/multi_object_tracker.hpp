@@ -6,12 +6,12 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "kalman_helper.hpp"
+#include "kalman_tracker.hpp"
 
 namespace OT {
     class MultiObjectTracker {
     private:
-        std::unique_ptr<std::vector<OT::KalmanHelper>> kalmanTrackers;
+        std::unique_ptr<std::vector<OT::KalmanTracker>> kalmanTrackers;
         cv::Size frameSize;
     public:
         MultiObjectTracker(cv::Size frameSize);

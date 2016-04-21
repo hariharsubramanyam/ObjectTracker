@@ -6,14 +6,14 @@ find_package( OpenCV REQUIRED )
 set( NAME_SRC
     src/main.cpp
     src/draw_utils.cpp
-    src/kalman_helper.cpp
+    src/kalman_tracker.cpp
     src/multi_object_tracker.cpp
     src/hungarian.cpp
 )
 
 set( NAME_HEADERS
     include/draw_utils.hpp
-    include/kalman_helper.hpp
+    include/kalman_tracker.hpp
     include/multi_object_tracker.hpp
     include/hungarian.hpp
 )

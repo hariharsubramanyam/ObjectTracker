@@ -1,5 +1,5 @@
-#ifndef KALMAN_HELPER_HPP
-#define KALMAN_HELPER_HPP
+#ifndef KALMAN_TRACKER_HPP
+#define KALMAN_TRACKER_HPP
 
 #include <memory>
 #include <list>
@@ -15,7 +15,7 @@ namespace OT {
         cv::Point end;
     };
     
-    class KalmanHelper {
+    class KalmanTracker {
     private:
         std::unique_ptr<cv::KalmanFilter> kf;
         
@@ -35,7 +35,7 @@ namespace OT {
         
         void addPointToTrajectory(cv::Point pt);
     public:
-        KalmanHelper(cv::Point startPt, size_t maxTrajectorySize = 100);
+        KalmanTracker(cv::Point startPt, size_t maxTrajectorySize = 100);
         
         const int getNumFramesWithoutUpdate();
         
