@@ -80,7 +80,7 @@ void contourShow(std::string drawingName, const std::vector<std::vector<cv::Poin
 
 int main(int argc, char **argv) {
     // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
-    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
+    std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(cv::Point(0, 0), 20);
 
     
     std::unique_ptr<OT::MultiObjectTracker> tracker = nullptr;

@@ -32,7 +32,7 @@ namespace OT {
         
         void addPointToTrajectory(cv::Point pt);
     public:
-        KalmanHelper(float x, float y, size_t maxTrajectorySize = 100);
+        KalmanHelper(cv::Point startPt, size_t maxTrajectorySize = 100);
         
         const int getNumFramesWithoutUpdate();
         

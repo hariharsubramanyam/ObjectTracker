@@ -23,7 +23,7 @@ namespace OT {
         // If there are no Kalman trackers, make one for each detection.
         if (this->kalmanTrackers->empty()) {
             for (auto massCenter : massCenters) {
-                this->kalmanTrackers->push_back(OT::KalmanHelper(massCenter.x, massCenter.y));
+                this->kalmanTrackers->push_back(OT::KalmanHelper(massCenter));
             }
         }
         
@@ -87,9 +87,7 @@ namespace OT {
         
         // Create new trackers for the unassigned mass centers.
         for (size_t i = 0; i < centersWithoutKalman.size(); i++) {
-            this->kalmanTrackers->push_back(OT::KalmanHelper(massCenters[centersWithoutKalman[i]].x,
-                                                             massCenters[centersWithoutKalman[i]].y)
-                                            );
+            this->kalmanTrackers->push_back(OT::KalmanHelper(massCenters[centersWithoutKalman[i]]));
         }
         
         // Update the Kalman filters.

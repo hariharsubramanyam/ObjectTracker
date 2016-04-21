@@ -6,12 +6,12 @@
 #include "kalman_helper.hpp"
 
 namespace OT {
-    KalmanHelper::KalmanHelper(float x, float y, size_t maxTrajectorySize) {
+    KalmanHelper::KalmanHelper(cv::Point startPt, size_t maxTrajectorySize) {
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
         this->numFramesWithoutUpdate = 0;
-        this->previousPoint = cv::Point(x, y);
+        this->previousPoint = cv::Point(startPt.x, startPt.y);
         
         // Initialize filter with 4 dynamic parameters (x, y, x velocity, y
         // velocity), 2 measurement parameters (x, y), and no control parameters.
@@ -19,12 +19,12 @@ namespace OT {
         
         // Set the pre and post states.
         this->kf->statePre.setTo(0);
-        this->kf->statePre.at<float>(0, 0) = x;
-        this->kf->statePre.at<float>(1, 0) = y;
+        this->kf->statePre.at<float>(0, 0) = startPt.x;
+        this->kf->statePre.at<float>(1, 0) = startPt.y;
         
         this->kf->statePost.setTo(0);
-        this->kf->statePost.at<float>(0, 0) = x;
-        this->kf->statePost.at<float>(1, 0) = y;
+        this->kf->statePost.at<float>(0, 0) = startPt.x;
+        this->kf->statePost.at<float>(1, 0) = startPt.y;
         
         // Create the matrices.
         cv::setIdentity(this->kf->transitionMatrix);
