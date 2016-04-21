@@ -79,29 +79,42 @@ void contourShow(std::string drawingName, const std::vector<std::vector<cv::Poin
 
 
 int main(int argc, char **argv) {
+    // This does the actual tracking of the objects. We can't initialize it now because
+    // it needs to know the size of the frame. So, we set it equal to nullptr and initialize
+    // it after we get the first frame.
     std::unique_ptr<OT::MultiObjectTracker> tracker = nullptr;
 
+    // We'll use this variable to store the current frame captured from the video.
     cv::Mat frame;
+    
+    // This object represents the video or image sequence that we are reading from.
     cv::VideoCapture capture;
+    
+    // These two variables store the contours and contour hierarchy for the current frame.
+    // We won't use the hierarchy, but we need it in order to be able to call the cv::findContours
+    // function.
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
-    
-    std::list<OT::TrajectorySegment> trajectorySegments;
-    cv::Mat fore;
+
+    // To separate a the foreground from the background, we'll use this background subtractor
+    // based on a Mixture of Gaussians (MOG) model.
     cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
     bg->setHistory(1000);
     bg->setNMixtures(3);
     bg->setDetectShadows(false);
     
-    cv::Point s;
-    cv::Point p;
-
+    // This variable stores the foreground (a binary image) of the current video frame.
+    cv::Mat fore;
+    
+    // Read the first positional command line argument and use that as the video
+    // source. If no argument has been provided, use the webcam.
     if (argc > 1) {
       capture.open(argv[1]);
     } else {
       capture.open(0);
     }
     
+    // Ensure that the video has been opened correctly.
     if(!capture.isOpened()) {
         std::cerr << "Problem opening video source" << std::endl;
     }
@@ -109,10 +122,15 @@ int main(int argc, char **argv) {
 
     // Repeat while the user has not pressed "q" and while there's another frame.
     while(hasFrame(capture)) {
+        // Fetch the next frame.
         capture.retrieve(frame);
+        
+        // Create the tracker if it has not already been created.
         if (tracker == nullptr) {
             tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
         }
+        
+        // Separate the foreground from the background.
         bg->apply(frame, fore);
         
         // Get rid little specks of noise by doing a median blur.
@@ -132,28 +150,20 @@ int main(int argc, char **argv) {
         filterOutBadContours(contours);
         contourShow("Contours", contours, fore.size());
         
-        
+        // Find the bounding boxes for the contours and also find the center of mass for each contour.
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
         getCentersAndBoundingBoxes(contours, mc, boundRect);
         
+        // Update the predicted locations of the objects based on the observed
+        // mass centers.
         std::vector<cv::Point> predictions;
         tracker->update(mc, predictions);
         
+        // Draw a cross for each predicted location.
         for (auto pred : predictions) {
             OT::DrawUtils::drawCross(frame, pred, cv::Scalar(255, 255, 255), 5);
         }
-        
-//        for( size_t i = 0; i < contours.size(); i++ ) {
-//            cv::Point center = OT::DrawUtils::drawBoundingRect(frame, boundRect[i]);
-//            OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
-//                
-//            // Draw the trajectory.
-//            KF->getTrajectorySegments(&trajectorySegments);
-//            for (OT::TrajectorySegment segment : trajectorySegments) {
-//                line(frame, segment.start, segment.end, cv::Scalar(0, 255, 0), 1);
-//            }
-//        }
         imshow("Video", frame);
     }
     return 0;
