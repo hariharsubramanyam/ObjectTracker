@@ -11,6 +11,7 @@
 #include "hungarian.hpp"
 
 #define DISTANCE_THRESHOLD 60.0
+#define MAX_FRAMES_WITHOUT_UPDATE 10
 
 namespace OT {
     MultiObjectTracker::MultiObjectTracker(cv::Size frameSize) {
@@ -61,10 +62,45 @@ namespace OT {
                     kalmansWithoutCenters.push_back(i);
                 }
             } else {
-                (*this->kalmanTrackers)[i].noUpdateThisFrame();
+                this->kalmanTrackers->at(i).noUpdateThisFrame();
             }
         }
         
         // Remove any trackers that haven't been updated in a while.
+        for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
+            if (this->kalmanTrackers->at(i).getNumFramesWithoutUpdate() > MAX_FRAMES_WITHOUT_UPDATE) {
+                this->kalmanTrackers->erase(this->kalmanTrackers->begin() + i);
+                assignment.erase(assignment.begin() + i);
+                i--;
+            }
+        }
+        
+        // Find unassigned mass centers.
+        std::vector<int> centersWithoutKalman;
+        std::vector<int>::iterator it;
+        for (size_t i = 0; i < massCenters.size(); i++) {
+            it = std::find(assignment.begin(), assignment.end(), i);
+            if (it == assignment.end()) {
+                centersWithoutKalman.push_back(i);
+            }
+        }
+        
+        // Create new trackers for the unassigned mass centers.
+        for (size_t i = 0; i < centersWithoutKalman.size(); i++) {
+            this->kalmanTrackers->push_back(OT::KalmanHelper(massCenters[centersWithoutKalman[i]].x,
+                                                             massCenters[centersWithoutKalman[i]].y)
+                                            );
+        }
+        
+        // Update the Kalman filters.
+        for (size_t i = 0; i < assignment.size(); i++) {
+            this->kalmanTrackers->at(i).predict();
+            if (assignment[i] != -1) {
+                this->kalmanTrackers->at(i).correct(massCenters[assignment[i]].x, massCenters[assignment[i]].y);
+            } else {
+                // Otherwise update this with the previous step's measurement.
+                this->kalmanTrackers->at(i).correct();
+            }
+        }
     }
 }

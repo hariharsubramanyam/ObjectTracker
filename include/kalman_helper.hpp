@@ -28,9 +28,13 @@ namespace OT {
         // The trajectory of the moving object.
         std::shared_ptr<std::list<cv::Point>> trajectory;
         
+        cv::Point previousPoint;
+        
         void addPointToTrajectory(cv::Point pt);
     public:
         KalmanHelper(float x, float y, size_t maxTrajectorySize = 100);
+        
+        const int getNumFramesWithoutUpdate();
         
         // Get the trajectory of this object as a list of line segments. Put the resulting segments in the given list.
         void getTrajectorySegments(std::list<TrajectorySegment> *segments);
@@ -40,6 +44,7 @@ namespace OT {
         
         cv::Point predict();
         cv::Point correct(float x, float y);
+        cv::Point correct();
     };
 }
 
