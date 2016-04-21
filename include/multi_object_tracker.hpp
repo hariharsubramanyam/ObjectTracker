@@ -15,6 +15,9 @@ namespace OT {
         cv::Size frameSize;
     public:
         MultiObjectTracker(cv::Size frameSize);
+        
+        // Update the object tracker with the mass centers of the observed boundings rects.
+        void update(const std::vector<cv::Point2f>& massCenters);
     };
 }
 
