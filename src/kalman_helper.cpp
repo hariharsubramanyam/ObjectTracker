@@ -10,6 +10,7 @@ namespace OT {
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
+        this->numFramesWithoutUpdate = 0;
         
         // Initialize filter with 4 dynamic parameters (x, y, x velocity, y
         // velocity), 2 measurement parameters (x, y), and no control parameters.
@@ -69,5 +70,9 @@ namespace OT {
             }
             prevPt = pt;
         }
+    }
+    
+    void KalmanHelper::noUpdateThisFrame() {
+        this->numFramesWithoutUpdate++;
     }
 }

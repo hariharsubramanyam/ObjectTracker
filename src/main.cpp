@@ -9,6 +9,7 @@
 
 #include "draw_utils.hpp"
 #include "kalman_helper.hpp"
+#include "multi_object_tracker.hpp"
 
 /**
  * Check if there's another frame in the video capture. We do this by first checking if the user has quit (i.e. pressed
@@ -50,7 +51,7 @@ void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
  * Remove contours if they are are too small.
  */
 void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
-    const size_t CONTOUR_SIZE_THRESHOLD = 1000;
+    const size_t CONTOUR_SIZE_THRESHOLD = 0;
     auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
         return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
     });
@@ -81,6 +82,9 @@ int main(int argc, char **argv) {
     // Create the Kalman Filter with the point starting at (0, 0) and with a 20 sample trajectory.
     std::unique_ptr<OT::KalmanHelper> KF = std::make_unique<OT::KalmanHelper>(0, 0, 20);
 
+    
+    std::unique_ptr<OT::MultiObjectTracker> tracker = nullptr;
+
     cv::Mat frame;
     cv::VideoCapture capture;
     std::vector<cv::Vec4i> hierarchy;
@@ -110,6 +114,9 @@ int main(int argc, char **argv) {
     // Repeat while the user has not pressed "q" and while there's another frame.
     while(hasFrame(capture)) {
         capture.retrieve(frame);
+        if (tracker == nullptr) {
+            tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
+        }
         bg->apply(frame, fore);
         
         // Get rid little specks of noise by doing a median blur.
@@ -133,6 +140,7 @@ int main(int argc, char **argv) {
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
         getCentersAndBoundingBoxes(contours, mc, boundRect);
+        tracker->update(mc);
         
         p = KF->predict();
         
