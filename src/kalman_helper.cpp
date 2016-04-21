@@ -34,19 +34,19 @@ namespace OT {
         cv::setIdentity(this->kf->errorCovPost, cv::Scalar::all(0.1));
     }
     
-    cv::Point KalmanHelper::correct(float x, float y) {
+    cv::Point KalmanHelper::correct(cv::Point pt) {
         this->numFramesWithoutUpdate = 0;
         cv::Mat_<float> measurement = cv::Mat_<float>::zeros(2, 1);
-        measurement(0) = x;
-        measurement(1) = y;
-        this->previousPoint = cv::Point(x, y);
+        measurement(0) = pt.x;
+        measurement(1) = pt.y;
+        this->previousPoint = pt;
         cv::Mat estimated = this->kf->correct(measurement);
         cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
         return statePt;
     }
     
     cv::Point KalmanHelper::correct() {
-        return this->correct(this->previousPoint.x, this->previousPoint.y);
+        return this->correct(this->previousPoint);
     }
     
     cv::Point KalmanHelper::predict() {

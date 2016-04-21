@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
         
         for( size_t i = 0; i < contours.size(); i++ ) {
             cv::Point center = OT::DrawUtils::drawBoundingRect(frame, boundRect[i]);
-            s = KF->correct(center.x, center.y);
+            s = KF->correct(center);
             OT::DrawUtils::drawCross(frame, s, cv::Scalar(255, 255, 255), 5);
                 
             // Draw the trajectory.

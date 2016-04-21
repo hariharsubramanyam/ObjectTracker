@@ -94,7 +94,7 @@ namespace OT {
         for (size_t i = 0; i < assignment.size(); i++) {
             this->kalmanTrackers->at(i).predict();
             if (assignment[i] != -1) {
-                this->kalmanTrackers->at(i).correct(massCenters[assignment[i]].x, massCenters[assignment[i]].y);
+                this->kalmanTrackers->at(i).correct(massCenters[assignment[i]]);
             } else {
                 // Otherwise update this with the previous step's measurement.
                 this->kalmanTrackers->at(i).correct();

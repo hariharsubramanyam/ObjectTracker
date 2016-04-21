@@ -43,7 +43,7 @@ namespace OT {
         void noUpdateThisFrame();
         
         cv::Point predict();
-        cv::Point correct(float x, float y);
+        cv::Point correct(cv::Point pt);
         cv::Point correct();
     };
 }
