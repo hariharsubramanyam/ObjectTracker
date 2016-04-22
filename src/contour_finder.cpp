@@ -11,7 +11,8 @@ namespace OT {
         this->bg = cv::createBackgroundSubtractorMOG2();
         this->bg->setHistory(history);
         this->bg->setNMixtures(nMixtures);
-        this->bg->setDetectShadows(false);
+        this->bg->setDetectShadows(true);
+        this->bg->setShadowThreshold(0.5);
         this->contourSizeThreshold = contourSizeThreshold;
         this->medianFilterSize = medianFilterSize;
     }
@@ -37,6 +38,7 @@ namespace OT {
         
         // Find the foreground.
         this->bg->apply(frame, this->foreground);
+        cv::threshold(this->foreground, this->foreground, 130, 255, CV_THRESH_BINARY);
         cv::imshow("foreground", this->foreground);
         
         // Get rid little specks of noise by doing a median blur.
