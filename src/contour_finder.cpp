@@ -39,7 +39,6 @@ namespace OT {
         // Find the foreground.
         this->bg->apply(frame, this->foreground);
         cv::threshold(this->foreground, this->foreground, 130, 255, CV_THRESH_BINARY);
-        cv::imshow("foreground", this->foreground);
         
         // Get rid little specks of noise by doing a median blur.
         // The median blur is good for salt-and-pepper noise, not Gaussian noise.
@@ -47,6 +46,11 @@ namespace OT {
         
         // Dilate the image to make the blobs larger.
         cv::dilate(this->foreground, this->foreground, cv::Mat());
+        cv::dilate(this->foreground, this->foreground, cv::Mat());
+        cv::dilate(this->foreground, this->foreground, cv::Mat());
+        cv::dilate(this->foreground, this->foreground, cv::Mat());
+        
+        cv::imshow("foreground", this->foreground);
         
         // Find the contours.
         cv::findContours(this->foreground, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
