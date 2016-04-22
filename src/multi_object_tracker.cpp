@@ -12,11 +12,15 @@
 namespace OT {
     MultiObjectTracker::MultiObjectTracker(long lifetimeThreshold,
                                            double distanceThreshold,
-                                           long missedFramesThreshold) {
+                                           long missedFramesThreshold,
+                                           float dt,
+                                           float magnitudeOfAccelerationNoise) {
         this->kalmanTrackers = std::vector<OT::KalmanTracker>();
         this->lifetimeThreshold = lifetimeThreshold;
         this->distanceThreshold = distanceThreshold;
         this->missedFramesThreshold = missedFramesThreshold;
+        this->magnitudeOfAccelerationNoise = magnitudeOfAccelerationNoise;
+        this->dt = dt;
     }
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
@@ -47,7 +51,9 @@ namespace OT {
         // If there are no Kalman trackers, make one for each detection.
         if (this->kalmanTrackers.empty()) {
             for (auto massCenter : massCenters) {
-                this->kalmanTrackers.push_back(OT::KalmanTracker(massCenter));
+                this->kalmanTrackers.push_back(OT::KalmanTracker(massCenter,
+                                                                 this->dt,
+                                                                 this->magnitudeOfAccelerationNoise));
             }
         }
         

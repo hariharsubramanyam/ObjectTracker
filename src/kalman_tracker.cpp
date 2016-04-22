@@ -6,7 +6,10 @@
 #include "kalman_tracker.hpp"
 
 namespace OT {
-    KalmanTracker::KalmanTracker(cv::Point startPt, size_t maxTrajectorySize) {
+    KalmanTracker::KalmanTracker(cv::Point startPt,
+                                 float dt,
+                                 float magnitudeOfAccelerationNoise,
+                                 size_t maxTrajectorySize) {
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
@@ -29,10 +32,17 @@ namespace OT {
         this->kf->statePost.at<float>(1, 0) = startPt.y;
         
         // Create the matrices.
-        cv::setIdentity(this->kf->transitionMatrix);
+        this->kf->transitionMatrix = (cv::Mat_<float>(4, 4) << 1,0,dt,0,   0,1,0,dt,  0,0,1,0,  0,0,0,1);
+
         cv::setIdentity(this->kf->measurementMatrix);
-        cv::setIdentity(this->kf->processNoiseCov, cv::Scalar::all(0.005));
-        cv::setIdentity(this->kf->measurementNoiseCov, cv::Scalar::all(1e-1));
+        this->kf->processNoiseCov = (cv::Mat_<float>(4, 4) <<
+                                 pow(dt,4.0)/4.0, 0, pow(dt,3.0)/2.0, 0,
+                                 0, pow(dt,4.0)/4.0 , 0 ,pow(dt,3.0)/2.0,
+                                 pow(dt,3.0)/2.0, 0, pow(dt,2.0), 0,
+                                 0, pow(dt,3.0)/2.0, 0, pow(dt,2.0));
+        this->kf->processNoiseCov *= magnitudeOfAccelerationNoise;
+        
+        cv::setIdentity(this->kf->measurementNoiseCov, cv::Scalar::all(0.1));
         cv::setIdentity(this->kf->errorCovPost, cv::Scalar::all(0.1));
     }
     
@@ -43,6 +53,8 @@ namespace OT {
         this->previousPoint = pt;
         cv::Mat estimated = this->kf->correct(measurement);
         cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
+        this->prediction.x = statePt.x;
+        this->prediction.y = statePt.y;
         return statePt;
     }
     

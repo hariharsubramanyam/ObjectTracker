@@ -38,7 +38,10 @@ namespace OT {
         
         void addPointToTrajectory(cv::Point pt);
     public:
-        KalmanTracker(cv::Point startPt, size_t maxTrajectorySize = 100);
+        KalmanTracker(cv::Point startPt,
+                      float dt = 0.2,
+                      float magnitudeOfAccelerationNoise = 0.5,
+                      size_t maxTrajectorySize = 100);
         
         const int getNumFramesWithoutUpdate();
         

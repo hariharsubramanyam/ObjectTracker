@@ -24,10 +24,18 @@ namespace OT {
         // Kill a tracker if it has gone missedFramesThreshold frames
         // without receiving a measurement.
         long missedFramesThreshold;
+        
+        // Delta time, used to set up matrices for Kalman trackers.
+        float dt;
+        
+        // Magnitude of acceleration noise. Used to set up Kalman trackers.
+        float magnitudeOfAccelerationNoise;
     public:
         MultiObjectTracker(long lifetimeThreshold = 20,
                            double distanceThreshold = 60.0,
-                           long missedFramesThreshold = 30);
+                           long missedFramesThreshold = 10,
+                           float dt = 0.2,
+                           float magnitudeOfAccelerationNoise = 0.5);
         
         // Update the object tracker with the mass centers of the observed boundings rects.
         void update(const std::vector<cv::Point2f>& massCenters,

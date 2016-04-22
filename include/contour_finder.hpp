@@ -32,7 +32,7 @@ namespace OT {
     public:
         ContourFinder(int history = 1000,
                       int nMixtures = 3,
-                      int contourSizeThreshold = 1000,
+                      int contourSizeThreshold = 500,
                       int medianFilterSize = 5);
         
         /**
