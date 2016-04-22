@@ -29,6 +29,13 @@ namespace OT {
         // We use median filter to remove noise, this is the size of the filter.
         // It must be an odd number.
         int medianFilterSize;
+        
+        /**
+         * Find the mass centers and bounding boxes for the given contours.
+         */
+        void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
+                                        std::vector<cv::Point2f>& massCenters,
+                                        std::vector<cv::Rect>& boundingBoxes);
     public:
         ContourFinder(int history = 1000,
                       int nMixtures = 3,
@@ -40,14 +47,9 @@ namespace OT {
          */
         void findContours(const cv::Mat& frame,
                           std::vector<cv::Vec4i>& hierarchy,
-                          std::vector<std::vector<cv::Point>>& contours);
-        
-        /**
-         * Find the mass centers and bounding boxes for the given contours.
-         */
-        void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
-                                        std::vector<cv::Point2f>& massCenters,
-                                        std::vector<cv::Rect>& boundingBoxes);
+                          std::vector<std::vector<cv::Point>>& contours,
+                          std::vector<cv::Point2f>& massCenters,
+                          std::vector<cv::Rect>& boundingBoxes);
     };
 }
 

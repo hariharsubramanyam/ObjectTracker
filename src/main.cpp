@@ -91,12 +91,9 @@ int main(int argc, char **argv) {
         }
         
         // Find the contours.
-        contourFinder.findContours(frame, hierarchy, contours);
-        
-        // Find the bounding boxes for the contours and also find the center of mass for each contour.
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
-        contourFinder.getCentersAndBoundingBoxes(contours, mc, boundRect);
+        contourFinder.findContours(frame, hierarchy, contours, mc, boundRect);
         
         contourShow("Contours", contours, boundRect, frame.size());
         

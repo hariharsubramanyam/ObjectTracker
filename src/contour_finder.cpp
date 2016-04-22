@@ -29,9 +29,11 @@ namespace OT {
         contours.erase(removeThese, contours.end());
     }
     
-    void ContourFinder::findContours(const cv::Mat &frame,
-                                     std::vector<cv::Vec4i> &hierarchy,
-                                     std::vector<std::vector<cv::Point> > &contours) {
+    void ContourFinder::findContours(const cv::Mat& frame,
+                                     std::vector<cv::Vec4i>& hierarchy,
+                                     std::vector<std::vector<cv::Point>>& contours,
+                                     std::vector<cv::Point2f>& massCenters,
+                                     std::vector<cv::Rect>& boundingBoxes) {
         // First clear the conotour and hierarchy objects.
         contours.clear();
         hierarchy.clear();
@@ -57,6 +59,9 @@ namespace OT {
         
         // Keep only those contours that are sufficiently large.
         this->filterOutBadContours(contours);
+        
+        // Get the contours and bounding boxes.
+        this->getCentersAndBoundingBoxes(contours, massCenters, boundingBoxes);
     }
     
     void ContourFinder::getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point> > &contours,
