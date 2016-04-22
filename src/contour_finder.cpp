@@ -6,15 +6,12 @@
 namespace OT {
     ContourFinder::ContourFinder(int history,
                                  int nMixtures,
-                                 bool detectShadows,
-                                 double shadowThreshold,
                                  int contourSizeThreshold,
                                  int medianFilterSize) {
         this->bg = cv::createBackgroundSubtractorMOG2();
         this->bg->setHistory(history);
         this->bg->setNMixtures(nMixtures);
-        this->bg->setDetectShadows(detectShadows);
-        this->bg->setShadowThreshold(shadowThreshold);
+        this->bg->setDetectShadows(false);
         this->contourSizeThreshold = contourSizeThreshold;
         this->medianFilterSize = medianFilterSize;
     }
@@ -40,6 +37,7 @@ namespace OT {
         
         // Find the foreground.
         this->bg->apply(frame, this->foreground);
+        cv::imshow("foreground", this->foreground);
         
         // Get rid little specks of noise by doing a median blur.
         // The median blur is good for salt-and-pepper noise, not Gaussian noise.

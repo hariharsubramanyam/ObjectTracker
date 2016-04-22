@@ -32,8 +32,6 @@ namespace OT {
     public:
         ContourFinder(int history = 1000,
                       int nMixtures = 3,
-                      bool detectShadows = true,
-                      double shadowThreshold = 0.5,
                       int contourSizeThreshold = 1000,
                       int medianFilterSize = 5);
         
