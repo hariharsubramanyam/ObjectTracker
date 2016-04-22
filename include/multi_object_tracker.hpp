@@ -37,7 +37,7 @@ namespace OT {
     public:
         MultiObjectTracker(cv::Size frameSize,
                            long lifetimeThreshold = 20,
-                           float distanceThreshold = 0.3,
+                           float distanceThreshold = 0.1,
                            long missedFramesThreshold = 10,
                            float dt = 0.2,
                            float magnitudeOfAccelerationNoise = 0.5);
