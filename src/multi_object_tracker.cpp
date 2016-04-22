@@ -101,21 +101,6 @@ namespace OT {
             }
         }
         
-        // If any unassigned Kalman trackers are within a bounding box for a mass center, indicate
-        // that they do indeed have an update (i.e. their previous location). We do this because sometimes
-        // objects occlude each other or are very close to each other, which results in a single bounding
-        // box (and single mass center) for both objects.
-        for (size_t i = 0; i < assignment.size(); i++) {
-            if (assignment[i] == -1) {
-                for (size_t j = 0; j < boundingRects.size(); j++) {
-                    if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())) {
-                        this->kalmanTrackers[i].gotUpdate();
-                        break;
-                    }
-                }
-            }
-        }
-        
         // Remove any trackers that haven't been updated in a while.
         for (int i = 0; i < this->kalmanTrackers.size(); i++) {
             if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > this->missedFramesThreshold) {
