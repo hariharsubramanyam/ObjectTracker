@@ -24,6 +24,7 @@ namespace OT {
     }
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
+                                    const std::vector<cv::Rect>& boundingRects,
                                     std::vector<cv::Point>& outputPredictions) {
         outputPredictions.clear();
         
@@ -94,6 +95,21 @@ namespace OT {
                 }
             } else {
                 this->kalmanTrackers[i].noUpdateThisFrame();
+            }
+        }
+        
+        // If any Kalman trackers are within a bounding box for a mass center, assign them
+        // to that mass center. This may result in two trackers assigned to the same
+        // mass center, but this sometimes happens if two move objects occlude each other
+        // and appear as a single contour.
+        for (size_t i = 0; i < assignment.size(); i++) {
+            if (assignment[i] == -1) {
+                for (size_t j = 0; j < boundingRects.size(); j++) {
+                    if (boundingRects[i].contains(this->kalmanTrackers[i].latestPrediction())) {
+                        assignment[i] = j;
+                        this->kalmanTrackers[i].gotUpdate();
+                    }
+                }
             }
         }
         
