@@ -8,7 +8,8 @@ namespace OT {
         this->bg = cv::createBackgroundSubtractorMOG2();
         this->bg->setHistory(1000);
         this->bg->setNMixtures(3);
-        this->bg->setDetectShadows(false);
+        this->bg->setDetectShadows(true);
+        this->bg->setShadowThreshold(0.5);
     }
     
     /**
