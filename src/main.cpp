@@ -24,18 +24,22 @@ bool hasFrame(cv::VideoCapture& capture) {
 /**
  * Draw the contours in a new image and show them.
  */
-void contourShow(std::string drawingName, const std::vector<std::vector<cv::Point>>& contours, cv::Size imgSize) {
-    cv::Mat drawing = cv::Mat::zeros(imgSize, CV_8UC1);
+void contourShow(std::string drawingName,
+                 const std::vector<std::vector<cv::Point>>& contours,
+                 const std::vector<cv::Rect>& boundingRect,
+                 cv::Size imgSize) {
+    cv::Mat drawing = cv::Mat::zeros(imgSize, CV_32FC3);
     for (size_t i = 0; i < contours.size(); i++) {
         cv::drawContours(drawing,
                          contours,
                          i,
-                         cv::Scalar::all(255),
+                         cv::Scalar::all(127),
                          CV_FILLED,
                          8,
                          std::vector<cv::Vec4i>(),
                          0,
                          cv::Point());
+        OT::DrawUtils::drawBoundingRect(drawing, boundingRect[i]);
     }
     cv::imshow(drawingName, drawing);
 }
@@ -84,12 +88,12 @@ int main(int argc, char **argv) {
         // Find the contours.
         contourFinder.findContours(frame, hierarchy, contours);
         
-        contourShow("Contours", contours, frame.size());
-        
         // Find the bounding boxes for the contours and also find the center of mass for each contour.
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
         contourFinder.getCentersAndBoundingBoxes(contours, mc, boundRect);
+        
+        contourShow("Contours", contours, boundRect, frame.size());
         
         // Update the predicted locations of the objects based on the observed
         // mass centers.
