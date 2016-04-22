@@ -11,9 +11,8 @@ namespace OT {
     class MultiObjectTracker {
     private:
         std::vector<OT::KalmanTracker> kalmanTrackers;
-        cv::Size frameSize;
     public:
-        MultiObjectTracker(cv::Size frameSize);
+        MultiObjectTracker();
         
         // Update the object tracker with the mass centers of the observed boundings rects.
         void update(const std::vector<cv::Point2f>& massCenters,

@@ -13,8 +13,7 @@
 #define MAX_FRAMES_WITHOUT_UPDATE 30
 
 namespace OT {
-    MultiObjectTracker::MultiObjectTracker(cv::Size frameSize) {
-        this->frameSize = frameSize;
+    MultiObjectTracker::MultiObjectTracker() {
         this->kalmanTrackers = std::vector<OT::KalmanTracker>();
     }
     
