@@ -1,7 +1,6 @@
 #ifndef multi_object_tracker_h
 #define multi_object_tracker_h
 
-#include <memory>
 #include <vector>
 
 #include <opencv2/opencv.hpp>
@@ -11,7 +10,7 @@
 namespace OT {
     class MultiObjectTracker {
     private:
-        std::unique_ptr<std::vector<OT::KalmanTracker>> kalmanTrackers;
+        std::vector<OT::KalmanTracker> kalmanTrackers;
         cv::Size frameSize;
     public:
         MultiObjectTracker(cv::Size frameSize);
