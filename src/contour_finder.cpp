@@ -17,6 +17,8 @@ namespace OT {
      */
     void ContourFinder::filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
         const size_t CONTOUR_SIZE_THRESHOLD = 1000;
+        
+        // Remove contours that have a size less than the contour size threshold.
         auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
             return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
         });
