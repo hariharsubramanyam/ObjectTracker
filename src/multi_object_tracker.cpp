@@ -9,17 +9,18 @@
 #include "kalman_tracker.hpp"
 #include "hungarian.hpp"
 
-#define DISTANCE_THRESHOLD 60.0
-#define MAX_FRAMES_WITHOUT_UPDATE 30
-
 namespace OT {
-    MultiObjectTracker::MultiObjectTracker() {
+    MultiObjectTracker::MultiObjectTracker(long lifetimeThreshold,
+                                           double distanceThreshold,
+                                           long missedFramesThreshold) {
         this->kalmanTrackers = std::vector<OT::KalmanTracker>();
+        this->lifetimeThreshold = lifetimeThreshold;
+        this->distanceThreshold = distanceThreshold;
+        this->missedFramesThreshold = missedFramesThreshold;
     }
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
-                                    std::vector<cv::Point>& outputPredictions,
-                                    long lifetimeThreshold) {
+                                    std::vector<cv::Point>& outputPredictions) {
         outputPredictions.clear();
         
         // If we haven't found any mass centers, just update all the Kalman filters and return their predictions.
@@ -29,7 +30,7 @@ namespace OT {
                 this->kalmanTrackers[i].noUpdateThisFrame();
                 
                 // Remove the tracker if it is dead.
-                if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > MAX_FRAMES_WITHOUT_UPDATE) {
+                if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > this->missedFramesThreshold) {
                     this->kalmanTrackers.erase(this->kalmanTrackers.begin() + i);
                     i--;
                 }
@@ -81,7 +82,7 @@ namespace OT {
         std::vector<int> kalmansWithoutCenters;
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] != -1) {
-                if (costMatrix[i][assignment[i]] > DISTANCE_THRESHOLD) {
+                if (costMatrix[i][assignment[i]] > this->distanceThreshold) {
                     assignment[i] = -1;
                     kalmansWithoutCenters.push_back(i);
                 }
@@ -92,7 +93,7 @@ namespace OT {
         
         // Remove any trackers that haven't been updated in a while.
         for (int i = 0; i < this->kalmanTrackers.size(); i++) {
-            if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > MAX_FRAMES_WITHOUT_UPDATE) {
+            if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > this->missedFramesThreshold) {
                 this->kalmanTrackers.erase(this->kalmanTrackers.begin() + i);
                 assignment.erase(assignment.begin() + i);
                 i--;
@@ -128,7 +129,7 @@ namespace OT {
         
         // Now update the predictions.
         for (size_t i = 0; i < this->kalmanTrackers.size(); i++) {
-            if (this->kalmanTrackers[i].getLifetime() > lifetimeThreshold) {
+            if (this->kalmanTrackers[i].getLifetime() > this->lifetimeThreshold) {
                 outputPredictions.push_back(this->kalmanTrackers[i].latestPrediction());
             }
         }

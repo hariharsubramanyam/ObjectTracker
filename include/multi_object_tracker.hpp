@@ -10,14 +10,28 @@
 namespace OT {
     class MultiObjectTracker {
     private:
+        // The actual object trackers.
         std::vector<OT::KalmanTracker> kalmanTrackers;
+        
+        // We only care about trackers who have been alive for the
+        // given lifetimeThreshold number of frames.
+        long lifetimeThreshold;
+        
+        // We won't associate a tracker with a mass center if the
+        // distance between them exceeds this given threshold.
+        double distanceThreshold;
+        
+        // Kill a tracker if it has gone missedFramesThreshold frames
+        // without receiving a measurement.
+        long missedFramesThreshold;
     public:
-        MultiObjectTracker();
+        MultiObjectTracker(long lifetimeThreshold = 20,
+                           double distanceThreshold = 60.0,
+                           long missedFramesThreshold = 30);
         
         // Update the object tracker with the mass centers of the observed boundings rects.
         void update(const std::vector<cv::Point2f>& massCenters,
-                    std::vector<cv::Point>& outputPredictions,
-                    long lifetimeThreshold = -1);
+                    std::vector<cv::Point>& outputPredictions);
     };
 }
 
