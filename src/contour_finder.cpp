@@ -1,12 +1,14 @@
 #include "contour_finder.hpp"
 
+#include <numeric>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
 
 namespace OT {
     ContourFinder::ContourFinder(int history,
                                  int nMixtures,
-                                 int contourSizeThreshold,
+                                 float contourSizeThreshold,
                                  int medianFilterSize) {
         this->bg = cv::createBackgroundSubtractorMOG2();
         this->bg->setHistory(history);
@@ -21,8 +23,28 @@ namespace OT {
      * Remove contours if they are are too small.
      */
     void ContourFinder::filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
-        int threshold = this->contourSizeThreshold;
-        // Remove contours that have a size less than the contour size threshold.
+        std::vector<double> areas(contours.size());
+        
+        // Find the area of each contour.
+        std::transform(contours.cbegin(),
+                       contours.cend(),
+                       areas.begin(),
+                       [](std::vector<cv::Point> contour) {
+                           return cv::contourArea(contour);
+                       });
+        
+        // Select the largest contour.
+        double maxArea = std::accumulate(areas.cbegin(),
+                                         areas.cend(),
+                                         0,
+                                         [](double prevMaxArea, double area) {
+                                             return std::max(prevMaxArea, area);
+                                         });
+        
+        // Create the threshold.
+        int threshold = this->contourSizeThreshold * maxArea;
+        
+        // Remove contours that have a size less than the threshold.
         auto removeThese = std::remove_if(contours.begin(), contours.end(), [threshold](std::vector<cv::Point> contour) {
             return cv::contourArea(contour) <= threshold;
         });
