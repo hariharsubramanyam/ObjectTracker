@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     // This does the actual tracking of the objects. We can't initialize it now because
     // it needs to know the size of the frame. So, we set it equal to nullptr and initialize
     // it after we get the first frame.
-    OT::MultiObjectTracker tracker;
+    std::unique_ptr<OT::MultiObjectTracker> tracker = nullptr;
 
     // We'll use this variable to store the current frame captured from the video.
     cv::Mat frame;
@@ -85,6 +85,11 @@ int main(int argc, char **argv) {
         // Fetch the next frame.
         capture.retrieve(frame);
         
+        // Create the tracker if it isn't created yet.
+        if (tracker == nullptr) {
+            tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
+        }
+        
         // Find the contours.
         contourFinder.findContours(frame, hierarchy, contours);
         
@@ -98,7 +103,7 @@ int main(int argc, char **argv) {
         // Update the predicted locations of the objects based on the observed
         // mass centers.
         std::vector<cv::Point> predictions;
-        tracker.update(mc, boundRect, predictions);
+        tracker->update(mc, boundRect, predictions);
         
         // Draw a cross for each predicted location.
         for (auto pred : predictions) {

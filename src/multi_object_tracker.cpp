@@ -10,12 +10,14 @@
 #include "hungarian.hpp"
 
 namespace OT {
-    MultiObjectTracker::MultiObjectTracker(long lifetimeThreshold,
-                                           double distanceThreshold,
+    MultiObjectTracker::MultiObjectTracker(cv::Size frameSize,
+                                           long lifetimeThreshold,
+                                           float distanceThreshold,
                                            long missedFramesThreshold,
                                            float dt,
                                            float magnitudeOfAccelerationNoise) {
         this->kalmanTrackers = std::vector<OT::KalmanTracker>();
+        this->frameSize = frameSize;
         this->lifetimeThreshold = lifetimeThreshold;
         this->distanceThreshold = distanceThreshold;
         this->missedFramesThreshold = missedFramesThreshold;
@@ -87,9 +89,12 @@ namespace OT {
         
         // Unassign any Kalman trackers whose distance to their assignment is too large.
         std::vector<int> kalmansWithoutCenters;
+        
+        
+        float frameDimension = 0.5 * (this->frameSize.height + this->frameSize.width);
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] != -1) {
-                if (costMatrix[i][assignment[i]] > this->distanceThreshold) {
+                if (costMatrix[i][assignment[i]] > this->distanceThreshold * frameDimension) {
                     assignment[i] = -1;
                     kalmansWithoutCenters.push_back(i);
                 }

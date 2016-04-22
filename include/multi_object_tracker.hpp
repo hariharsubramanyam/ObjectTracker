@@ -17,9 +17,13 @@ namespace OT {
         // given lifetimeThreshold number of frames.
         long lifetimeThreshold;
         
-        // We won't associate a tracker with a mass center if the
-        // distance between them exceeds this given threshold.
-        double distanceThreshold;
+        // The size of a frame.
+        cv::Size frameSize;
+        
+        // We won't associate a tracker with a mass center if the distance
+        // between the two is greater than this fraction of the frame dimension
+        // (taken as average between width and height).
+        float distanceThreshold;
         
         // Kill a tracker if it has gone missedFramesThreshold frames
         // without receiving a measurement.
@@ -31,8 +35,9 @@ namespace OT {
         // Magnitude of acceleration noise. Used to set up Kalman trackers.
         float magnitudeOfAccelerationNoise;
     public:
-        MultiObjectTracker(long lifetimeThreshold = 20,
-                           double distanceThreshold = 60.0,
+        MultiObjectTracker(cv::Size frameSize,
+                           long lifetimeThreshold = 20,
+                           float distanceThreshold = 0.5,
                            long missedFramesThreshold = 10,
                            float dt = 0.2,
                            float magnitudeOfAccelerationNoise = 0.5);
