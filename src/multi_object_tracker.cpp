@@ -10,7 +10,7 @@
 #include "hungarian.hpp"
 
 #define DISTANCE_THRESHOLD 60.0
-#define MAX_FRAMES_WITHOUT_UPDATE 10
+#define MAX_FRAMES_WITHOUT_UPDATE 30
 
 namespace OT {
     MultiObjectTracker::MultiObjectTracker(cv::Size frameSize) {
@@ -18,7 +18,9 @@ namespace OT {
         this->kalmanTrackers = std::make_unique<std::vector<OT::KalmanTracker>>();
     }
     
-    void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters, std::vector<cv::Point>& outputPredictions) {
+    void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
+                                    std::vector<cv::Point>& outputPredictions,
+                                    long lifetimeThreshold) {
         outputPredictions.clear();
         
         // If we haven't found any mass centers, just update all the Kalman filters and return their predictions.
@@ -35,7 +37,9 @@ namespace OT {
             }
             // Update the remaining trackers.
             for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
-                outputPredictions.push_back(this->kalmanTrackers->at(i).predict());
+                if (this->kalmanTrackers->at(i).getLifetime() > lifetimeThreshold) {
+                    outputPredictions.push_back(this->kalmanTrackers->at(i).predict());
+                }
             }
             return;
         }
@@ -125,7 +129,9 @@ namespace OT {
         
         // Now update the predictions.
         for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
-            outputPredictions.push_back(this->kalmanTrackers->at(i).latestPrediction());
+            if (this->kalmanTrackers->at(i).getLifetime() > lifetimeThreshold) {
+                outputPredictions.push_back(this->kalmanTrackers->at(i).latestPrediction());
+            }
         }
     }
 }

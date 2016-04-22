@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
         // Update the predicted locations of the objects based on the observed
         // mass centers.
         std::vector<cv::Point> predictions;
-        tracker->update(mc, predictions);
+        tracker->update(mc, predictions, 30);
         
         // Draw a cross for each predicted location.
         for (auto pred : predictions) {

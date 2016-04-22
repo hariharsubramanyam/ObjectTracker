@@ -13,6 +13,7 @@ namespace OT {
         this->numFramesWithoutUpdate = 0;
         this->previousPoint = startPt;
         this->prediction = startPt;
+        this->lifetime = 0;
         
         // Initialize filter with 4 dynamic parameters (x, y, x velocity, y
         // velocity), 2 measurement parameters (x, y), and no control parameters.
@@ -84,7 +85,12 @@ namespace OT {
         }
     }
     
+    long KalmanTracker::getLifetime() {
+        return this->lifetime;
+    }
+    
     void KalmanTracker::noUpdateThisFrame() {
+        this->lifetime++;
         this->numFramesWithoutUpdate++;
     }
     
@@ -93,6 +99,7 @@ namespace OT {
     }
     
     void KalmanTracker::gotUpdate() {
+        this->lifetime++;
         this->numFramesWithoutUpdate = 0;
     }
 }

@@ -33,6 +33,9 @@ namespace OT {
         // Store the latest prediction.
         cv::Point prediction;
         
+        // The number of frames that this Kalman tracker has been alive.
+        long lifetime;
+        
         void addPointToTrajectory(cv::Point pt);
     public:
         KalmanTracker(cv::Point startPt, size_t maxTrajectorySize = 100);
@@ -47,6 +50,9 @@ namespace OT {
         
         // Indicate that the Kalman filter was updated this frame.
         void gotUpdate();
+        
+        // Return the number of frames that this Kalman tracker has been alive.
+        long getLifetime();
         
         cv::Point predict();
         cv::Point latestPrediction();
