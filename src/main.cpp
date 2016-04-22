@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     std::vector<std::vector<cv::Point> > contours;
     
     // We'll use a ContourFinder to do the actual extraction of contours from the image.
-    std::unique_ptr<OT::ContourFinder> contourFinder = std::make_unique<OT::ContourFinder>();
+    OT::ContourFinder contourFinder;
 
     // Read the first positional command line argument and use that as the video
     // source. If no argument has been provided, use the webcam.
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
         }
         
         // Find the contours.
-        contourFinder->findContours(frame, hierarchy, contours);
+        contourFinder.findContours(frame, hierarchy, contours);
         
         contourShow("Contours", contours, frame.size());
         
