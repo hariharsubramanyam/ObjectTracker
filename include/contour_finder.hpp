@@ -22,8 +22,20 @@ namespace OT {
         
         // Remove contours that are too small.
         void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours);
+        
+        // Filter out contours whose area is less than this size (in pixels).
+        int contourSizeThreshold;
+        
+        // We use median filter to remove noise, this is the size of the filter.
+        // It must be an odd number.
+        int medianFilterSize;
     public:
-        ContourFinder();
+        ContourFinder(int history = 1000,
+                      int nMixtures = 3,
+                      bool detectShadows = true,
+                      double shadowThreshold = 0.5,
+                      int contourSizeThreshold = 1000,
+                      int medianFilterSize = 5);
         
         /**
          * Find contours representing the objects in the frame.

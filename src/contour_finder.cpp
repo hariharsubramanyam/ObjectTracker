@@ -4,23 +4,29 @@
 #include <opencv2/video/tracking.hpp>
 
 namespace OT {
-    ContourFinder::ContourFinder() {
+    ContourFinder::ContourFinder(int history,
+                                 int nMixtures,
+                                 bool detectShadows,
+                                 double shadowThreshold,
+                                 int contourSizeThreshold,
+                                 int medianFilterSize) {
         this->bg = cv::createBackgroundSubtractorMOG2();
-        this->bg->setHistory(1000);
-        this->bg->setNMixtures(3);
-        this->bg->setDetectShadows(true);
-        this->bg->setShadowThreshold(0.5);
+        this->bg->setHistory(history);
+        this->bg->setNMixtures(nMixtures);
+        this->bg->setDetectShadows(detectShadows);
+        this->bg->setShadowThreshold(shadowThreshold);
+        this->contourSizeThreshold = contourSizeThreshold;
+        this->medianFilterSize = medianFilterSize;
     }
     
     /**
      * Remove contours if they are are too small.
      */
     void ContourFinder::filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
-        const size_t CONTOUR_SIZE_THRESHOLD = 1000;
-        
+        int threshold = this->contourSizeThreshold;
         // Remove contours that have a size less than the contour size threshold.
-        auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
-            return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
+        auto removeThese = std::remove_if(contours.begin(), contours.end(), [threshold](std::vector<cv::Point> contour) {
+            return cv::contourArea(contour) <= threshold;
         });
         contours.erase(removeThese, contours.end());
     }
@@ -37,7 +43,7 @@ namespace OT {
         
         // Get rid little specks of noise by doing a median blur.
         // The median blur is good for salt-and-pepper noise, not Gaussian noise.
-        cv::medianBlur(this->foreground, this->foreground, 5);
+        cv::medianBlur(this->foreground, this->foreground, this->medianFilterSize);
         
         // Dilate the image to make the blobs larger.
         cv::dilate(this->foreground, this->foreground, cv::Mat());
