@@ -52,4 +52,27 @@ namespace OT {
         // Keep only those contours that are sufficiently large.
         this->filterOutBadContours(contours);
     }
+    
+    void ContourFinder::getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point> > &contours,
+                                                   std::vector<cv::Point2f> &massCenters,
+                                                   std::vector<cv::Rect> &boundingBoxes) {
+        // Empty the vectors.
+        massCenters.clear();
+        boundingBoxes.clear();
+        
+        // Create local variables.
+        cv::Moments contourMoments;
+        std::vector<std::vector<cv::Point> > contourPolygons(contours.size());
+        
+        // Iterate through every contour.
+        for (size_t i = 0; i < contours.size(); i++) {
+            // Compute the center of mass.
+            contourMoments = cv::moments(contours[i], false);
+            massCenters.push_back(cv::Point2f(contourMoments.m10/contourMoments.m00, contourMoments.m01/contourMoments.m00));
+            
+            // Compute the polygon represented by the contour, and then compute the bounding box around that polygon.
+            cv::approxPolyDP(cv::Mat(contours[i]), contourPolygons[i], 3, true);
+            boundingBoxes.push_back(cv::boundingRect(cv::Mat(contourPolygons[i])));
+        }
+    }
 }

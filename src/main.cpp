@@ -22,32 +22,6 @@ bool hasFrame(cv::VideoCapture& capture) {
 }
 
 /**
- * Extract the center of mass for the given contours.
- */
-void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
-                                std::vector<cv::Point2f>& massCenters,
-                                std::vector<cv::Rect>& boundingBoxes) {
-    // Empty the vectors.
-    massCenters.clear();
-    boundingBoxes.clear();
-    
-    // Create local variables.
-    cv::Moments contourMoments;
-    std::vector<std::vector<cv::Point> > contourPolygons(contours.size());
-    
-    // Iterate through every contour.
-    for (size_t i = 0; i < contours.size(); i++) {
-        // Compute the center of mass.
-        contourMoments = cv::moments(contours[i], false);
-        massCenters.push_back(cv::Point2f(contourMoments.m10/contourMoments.m00, contourMoments.m01/contourMoments.m00));
-        
-        // Compute the polygon represented by the contour, and then compute the bounding box around that polygon.
-        cv::approxPolyDP(cv::Mat(contours[i]), contourPolygons[i], 3, true);
-        boundingBoxes.push_back(cv::boundingRect(cv::Mat(contourPolygons[i])));
-    }
-}
-
-/**
  * Draw the contours in a new image and show them.
  */
 void contourShow(std::string drawingName, const std::vector<std::vector<cv::Point>>& contours, cv::Size imgSize) {
@@ -120,7 +94,7 @@ int main(int argc, char **argv) {
         // Find the bounding boxes for the contours and also find the center of mass for each contour.
         std::vector<cv::Point2f> mc(contours.size());
         std::vector<cv::Rect> boundRect(contours.size());
-        getCentersAndBoundingBoxes(contours, mc, boundRect);
+        contourFinder.getCentersAndBoundingBoxes(contours, mc, boundRect);
         
         // Update the predicted locations of the objects based on the observed
         // mass centers.

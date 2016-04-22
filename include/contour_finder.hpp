@@ -41,6 +41,13 @@ namespace OT {
         void findContours(const cv::Mat& frame,
                           std::vector<cv::Vec4i>& hierarchy,
                           std::vector<std::vector<cv::Point>>& contours);
+        
+        /**
+         * Find the mass centers and bounding boxes for the given contours.
+         */
+        void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
+                                        std::vector<cv::Point2f>& massCenters,
+                                        std::vector<cv::Rect>& boundingBoxes);
     };
 }
 
