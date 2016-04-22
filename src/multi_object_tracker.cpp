@@ -101,15 +101,14 @@ namespace OT {
             }
         }
         
-        // If any unassigned Kalman trackers are within a bounding box for a mass center, assign them
-        // to that mass center. This may result in two trackers assigned to the same
-        // mass center, but this sometimes happens if two move objects occlude each other
-        // and appear as a single contour.
+        // If any unassigned Kalman trackers are within a bounding box for a mass center, indicate
+        // that they do indeed have an update (i.e. their previous location). We do this because sometimes
+        // objects occlude each other or are very close to each other, which results in a single bounding
+        // box (and single mass center) for both objects.
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] == -1) {
                 for (size_t j = 0; j < boundingRects.size(); j++) {
                     if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())) {
-                        assignment[i] = j;
                         this->kalmanTrackers[i].gotUpdate();
                         break;
                     }
