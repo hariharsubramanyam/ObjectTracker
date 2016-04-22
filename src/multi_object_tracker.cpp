@@ -89,8 +89,6 @@ namespace OT {
         
         // Unassign any Kalman trackers whose distance to their assignment is too large.
         std::vector<int> kalmansWithoutCenters;
-        
-        
         float frameDimension = 0.5 * (this->frameSize.height + this->frameSize.width);
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] != -1) {
@@ -110,7 +108,7 @@ namespace OT {
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] == -1) {
                 for (size_t j = 0; j < boundingRects.size(); j++) {
-                    if (boundingRects[i].contains(this->kalmanTrackers[i].latestPrediction())) {
+                    if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())) {
                         assignment[i] = j;
                         this->kalmanTrackers[i].gotUpdate();
                         break;
