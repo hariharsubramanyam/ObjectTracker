@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
-#include <iostream>
 
 #include <opencv2/opencv.hpp>
 
@@ -20,6 +19,27 @@ namespace OT {
     }
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters, std::vector<cv::Point>& outputPredictions) {
+        outputPredictions.clear();
+        
+        // If we haven't found any mass centers, just update all the Kalman filters and return their predictions.
+        if (massCenters.empty()) {
+            for (int i = 0; i < this->kalmanTrackers->size(); i++) {
+                // Indicate that the tracker didn't get an update this frame.
+                this->kalmanTrackers->at(i).noUpdateThisFrame();
+                
+                // Remove the tracker if it is dead.
+                if (this->kalmanTrackers->at(i).getNumFramesWithoutUpdate() > MAX_FRAMES_WITHOUT_UPDATE) {
+                    this->kalmanTrackers->erase(this->kalmanTrackers->begin() + i);
+                    i--;
+                }
+            }
+            // Update the remaining trackers.
+            for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
+                outputPredictions.push_back(this->kalmanTrackers->at(i).predict());
+            }
+            return;
+        }
+        
         // If there are no Kalman trackers, make one for each detection.
         if (this->kalmanTrackers->empty()) {
             for (auto massCenter : massCenters) {
@@ -32,13 +52,14 @@ namespace OT {
         size_t numCenters = massCenters.size();
         
         std::vector<std::vector<double>> costMatrix(numKalmans, std::vector<double>(numCenters));
+    
         std::vector<int> assignment;
         
         
-        // Run the predict step for the Kalman filters.
+        // Get the latest prediction for the Kalman filters.
         std::vector<cv::Point2f> predictions(this->kalmanTrackers->size());
         for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
-            predictions[i] = (*this->kalmanTrackers)[i].predict();
+            predictions[i] = (*this->kalmanTrackers)[i].latestPrediction();
         }
         
         // We need to associate each of the mass centers to their corresponding Kalman filter. First,
@@ -67,7 +88,7 @@ namespace OT {
         }
         
         // Remove any trackers that haven't been updated in a while.
-        for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
+        for (int i = 0; i < this->kalmanTrackers->size(); i++) {
             if (this->kalmanTrackers->at(i).getNumFramesWithoutUpdate() > MAX_FRAMES_WITHOUT_UPDATE) {
                 this->kalmanTrackers->erase(this->kalmanTrackers->begin() + i);
                 assignment.erase(assignment.begin() + i);
@@ -103,7 +124,6 @@ namespace OT {
         }
         
         // Now update the predictions.
-        outputPredictions.clear();
         for (size_t i = 0; i < this->kalmanTrackers->size(); i++) {
             outputPredictions.push_back(this->kalmanTrackers->at(i).latestPrediction());
         }

@@ -9,6 +9,7 @@ set( NAME_SRC
     src/kalman_tracker.cpp
     src/multi_object_tracker.cpp
     src/hungarian.cpp
+    src/contour_finder.cpp
 )
 
 set( NAME_HEADERS
@@ -16,6 +17,7 @@ set( NAME_HEADERS
     include/kalman_tracker.hpp
     include/multi_object_tracker.hpp
     include/hungarian.hpp
+    include/contour_finder.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )

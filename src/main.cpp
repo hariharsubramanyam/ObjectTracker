@@ -9,6 +9,7 @@
 
 #include "draw_utils.hpp"
 #include "multi_object_tracker.hpp"
+#include "contour_finder.hpp"
 
 /**
  * Check if there's another frame in the video capture. We do this by first checking if the user has quit (i.e. pressed
@@ -44,17 +45,6 @@ void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
         cv::approxPolyDP(cv::Mat(contours[i]), contourPolygons[i], 3, true);
         boundingBoxes.push_back(cv::boundingRect(cv::Mat(contourPolygons[i])));
     }
-}
-
-/**
- * Remove contours if they are are too small.
- */
-void filterOutBadContours(std::vector<std::vector<cv::Point>>& contours) {
-    const size_t CONTOUR_SIZE_THRESHOLD = 1000;
-    auto removeThese = std::remove_if(contours.begin(), contours.end(), [](std::vector<cv::Point> contour) {
-        return cv::contourArea(contour) <= CONTOUR_SIZE_THRESHOLD;
-    });
-    contours.erase(removeThese, contours.end());
 }
 
 /**
@@ -94,17 +84,10 @@ int main(int argc, char **argv) {
     // function.
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point> > contours;
+    
+    // We'll use a ContourFinder to do the actual extraction of contours from the image.
+    std::unique_ptr<OT::ContourFinder> contourFinder = std::make_unique<OT::ContourFinder>();
 
-    // To separate a the foreground from the background, we'll use this background subtractor
-    // based on a Mixture of Gaussians (MOG) model.
-    cv::Ptr<cv::BackgroundSubtractorMOG2> bg = cv::createBackgroundSubtractorMOG2();
-    bg->setHistory(1000);
-    bg->setNMixtures(3);
-    bg->setDetectShadows(false);
-    
-    // This variable stores the foreground (a binary image) of the current video frame.
-    cv::Mat fore;
-    
     // Read the first positional command line argument and use that as the video
     // source. If no argument has been provided, use the webcam.
     if (argc > 1) {
@@ -129,25 +112,10 @@ int main(int argc, char **argv) {
             tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
         }
         
-        // Separate the foreground from the background.
-        bg->apply(frame, fore);
-        
-        // Get rid little specks of noise by doing a median blur.
-        // The median blur is good for salt-and-pepper noise, not Gaussian noise.
-        cv::medianBlur(fore, fore, 5);
-        
-        // Dilate the image to make the blobs larger.
-        cv::dilate(fore, fore, cv::Mat());
-        
-        // Display the forground.
-        cv::imshow("Foreground", fore);
-
         // Find the contours.
-        cv::findContours(fore, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+        contourFinder->findContours(frame, hierarchy, contours);
         
-        // Keep only those contours that are sufficiently large.
-        filterOutBadContours(contours);
-        contourShow("Contours", contours, fore.size());
+        contourShow("Contours", contours, frame.size());
         
         // Find the bounding boxes for the contours and also find the center of mass for each contour.
         std::vector<cv::Point2f> mc(contours.size());
