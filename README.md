@@ -1,7 +1,7 @@
 # ObjectTracker
 
 ## Note
-This pipeline is still very much a prototype, so I'd appreciate any suggestions on how to improve it or make it simpler (while maintaining similar performance). Thank you!
+This pipeline is still very much a prototype, so I'd appreciate any suggestions on how to improve its tracking ability or make it simpler (while maintaining similar performance). Thank you!
 
 ## Intro
 
