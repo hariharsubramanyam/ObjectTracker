@@ -1,9 +1,22 @@
 # ObjectTracker
 
 ## Note
-This pipeline is still very much a prototype, so I'd appreciate any suggestions on how to improve its tracking ability or make it simpler (while maintaining similar performance). Thank you!
+This pipeline is still very much a prototype, so please keep that in mind if you'd like to use it. I am still learning computer vision, so I'd appreciate any suggestions on how to improve this pipeline's tracking ability or make it simpler (while maintaining similar performance). Thank you!
 
 This README describes how the tracking pipeline works. I hope it can be helpful to you if you decide to build your own tracking pipeline.
+
+## Acknowledgements
+I want to give credit to:
+
+This [paper](http://ceur-ws.org/Vol-1391/40-CR.pdf) by Gábor Szűcs, Dávid Papp, and Dániel Lovas, which outlines the Kalman + Hungarian tracking pipeline.
+
+This [repo](https://github.com/Smorodov/Multitarget-tracker) by Andrey Smorodov, which implements the Kalman + Hungarian pipeline.
+I use his code for the Hungarian algorithm and his technique for initializing the matrices for Kalman filters.
+
+This [website](http://web.rememberingemil.org/Projects/DisjointSets.aspx.html) by Emil Stefanov, 
+which has an implementation of the union-find (aka. disjoint set) data structure.
+
+[OpenCV](http://opencv.org/), which does most of the heavy lifting for the computer vision tasks that I do.
 
 ## Intro
 This is an object tracking pipeline that I built. It is designed for high mounted fixed cameras 
@@ -102,18 +115,3 @@ Now, I **update each Kalman filter** with its paired mass center or with the mos
 ### Ignore Young Filters
 Sometimes, if there's a **patch of noise that persists many frames**, a Kalman filter may be created for it. However,
 such Kalman filters usually don't live long, so I only pay attention to Kalman filters that **have been alive for 20 frames**.
-
-# Acknowledgements
-So that's my object tracking pipeline.
-
-I want to give credit to:
-
-This [paper](http://ceur-ws.org/Vol-1391/40-CR.pdf) by Gábor Szűcs, Dávid Papp, and Dániel Lovas, which outlines the Kalman + Hungarian tracking pipeline.
-
-This [repo](https://github.com/Smorodov/Multitarget-tracker) by Andrey Smorodov, which implements the Kalman + Hungarian pipeline.
-I use his code for the Hungarian algorithm and his technique for initializing the matrices for Kalman filters.
-
-This [website](http://web.rememberingemil.org/Projects/DisjointSets.aspx.html) by Emil Stefanov, 
-which has an implementation of the union-find (aka. disjoint set) data structure.
-
-[OpenCV](http://opencv.org/), which does most of the heavy lifting for the computer vision tasks that I do.
