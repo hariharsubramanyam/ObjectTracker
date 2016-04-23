@@ -45,7 +45,7 @@ namespace OT {
         // Update the object tracker with the mass centers of the observed boundings rects.
         void update(const std::vector<cv::Point2f>& massCenters,
                     const std::vector<cv::Rect>& boundingRects,
-                    std::vector<cv::Point>& outputPredictions);
+                    std::vector<OT::TrackingOutput>& trackingOutputs);
     };
 }
 

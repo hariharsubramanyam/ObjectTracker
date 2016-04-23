@@ -5,11 +5,20 @@
 
 #include "kalman_tracker.hpp"
 
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+
 namespace OT {
     KalmanTracker::KalmanTracker(cv::Point startPt,
                                  float dt,
                                  float magnitudeOfAccelerationNoise,
                                  size_t maxTrajectorySize) {
+        
+        // Seed the random number generator and pick a random ID and random color.
+        srand(time(NULL) + startPt.x + startPt.y);
+        this->id = rand();
+        this->color = cv::Scalar(rand() % 256, rand() % 256, rand() % 256);
+        
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::list<cv::Point>>();
@@ -113,5 +122,9 @@ namespace OT {
     void KalmanTracker::gotUpdate() {
         this->lifetime++;
         this->numFramesWithoutUpdate = 0;
+    }
+    
+    OT::TrackingOutput KalmanTracker::latestTrackingOutput() {
+        return OT::TrackingOutput{this->id, this->latestPrediction(), this->color};
     }
 }

@@ -27,8 +27,8 @@ namespace OT {
     
     void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
                                     const std::vector<cv::Rect>& boundingRects,
-                                    std::vector<cv::Point>& outputPredictions) {
-        outputPredictions.clear();
+                                    std::vector<OT::TrackingOutput>& trackingOutputs) {
+        trackingOutputs.clear();
         
         // If we haven't found any mass centers, just update all the Kalman filters and return their predictions.
         if (massCenters.empty()) {
@@ -45,7 +45,8 @@ namespace OT {
             // Update the remaining trackers.
             for (size_t i = 0; i < this->kalmanTrackers.size(); i++) {
                 if (this->kalmanTrackers[i].getLifetime() > lifetimeThreshold) {
-                    outputPredictions.push_back(this->kalmanTrackers[i].predict());
+                    this->kalmanTrackers[i].predict();
+                    trackingOutputs.push_back(this->kalmanTrackers[i].latestTrackingOutput());
                 }
             }
             return;
@@ -140,7 +141,7 @@ namespace OT {
         // Now update the predictions.
         for (size_t i = 0; i < this->kalmanTrackers.size(); i++) {
             if (this->kalmanTrackers[i].getLifetime() > this->lifetimeThreshold) {
-                outputPredictions.push_back(this->kalmanTrackers[i].latestPrediction());
+                trackingOutputs.push_back(this->kalmanTrackers[i].latestTrackingOutput());
             }
         }
     }

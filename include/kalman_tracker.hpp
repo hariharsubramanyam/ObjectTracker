@@ -9,6 +9,12 @@
 
 namespace OT {
     
+    struct TrackingOutput {
+        int id;
+        cv::Point location;
+        cv::Scalar color;
+    };
+    
     // Represents a segment in the trajectory of a moving object. The segment has a start and end point.
     struct TrajectorySegment {
         cv::Point start;
@@ -36,6 +42,12 @@ namespace OT {
         // The number of frames that this Kalman tracker has been alive.
         long lifetime;
         
+        // The unique identifier for this tracker.
+        int id;
+        
+        // The unique color associated with this Kalman tracker.
+        cv::Scalar color;
+        
         void addPointToTrajectory(cv::Point pt);
     public:
         KalmanTracker(cv::Point startPt,
@@ -61,6 +73,7 @@ namespace OT {
         cv::Point latestPrediction();
         cv::Point correct(cv::Point pt);
         cv::Point correct();
+        OT::TrackingOutput latestTrackingOutput();
     };
 }
 

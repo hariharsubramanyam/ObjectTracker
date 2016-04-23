@@ -8,6 +8,7 @@
 #include <opencv2/video/tracking.hpp>
 
 #include "draw_utils.hpp"
+#include "kalman_tracker.hpp"
 #include "multi_object_tracker.hpp"
 #include "contour_finder.hpp"
 
@@ -101,12 +102,12 @@ int main(int argc, char **argv) {
         
         // Update the predicted locations of the objects based on the observed
         // mass centers.
-        std::vector<cv::Point> predictions;
+        std::vector<OT::TrackingOutput> predictions;
         tracker->update(mc, boundRect, predictions);
         
         // Draw a cross for each predicted location.
         for (auto pred : predictions) {
-            OT::DrawUtils::drawCross(frame, pred, cv::Scalar(255, 255, 255), 5);
+            OT::DrawUtils::drawCross(frame, pred.location, pred.color, 5);
         }
         imshow("Video", frame);
     }
