@@ -9,7 +9,7 @@ to track objects moving in the scene below them. So, I'm making two important as
 Here's an outline of its operation, with explanations of why these decisions were made.
 
 ## Resize Image
-Computing on large images is expensive, so first shrink it down to **(300, 300)** pixels.
+Computing on large images is expensive, so first shrink each frame down to **(300, 300)** pixels.
 
 ## Background Subtraction
 To separate the foreground (the moving objects) from the backgound, I use background subtraction
@@ -27,9 +27,7 @@ to **holes in the image**, so I fill those in by **dilating** the image a few ti
 
 ### First Pass
 Now, I find the **contours** in the image. It's possible that **contours are drawn around noise**, so I address that
-by removing all contours that have an **area that is less than 10% of the largest contour's area**.
-
-and then compute the **center of mass** and **bounding box** around each of the remaining contours.
+by removing all contours that have an **area that is less than 10% of the largest contour's area**. Then, I compute the **center of mass** and **bounding box** around each of the remaining contours.
 
 ### Merging
 Sometimes, an object **may appear as two small pieces, rather than one whole**. So, I want to merge contours that
