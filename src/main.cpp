@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
         // Fetch the next frame.
         capture.retrieve(frame);
         
+        cv::resize(frame, frame, cv::Size(300, 300));
+        
         // Create the tracker if it isn't created yet.
         if (tracker == nullptr) {
             tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));

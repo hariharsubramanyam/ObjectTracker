@@ -27,7 +27,7 @@ namespace OT {
                         0);
           cv::Point center = cv::Point(boundingRect.x + (boundingRect.width /2),
                                        boundingRect.y + (boundingRect.height/2));
-          cv::circle(img,center, 8, cv::Scalar(0, 0, 255), -1, 1,0);
+          cv::circle(img,center, 3, cv::Scalar(0, 0, 255), -1, 1,0);
           return center;
       }
   }
