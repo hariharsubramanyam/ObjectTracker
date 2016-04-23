@@ -48,7 +48,7 @@ namespace OT {
         KalmanTracker(cv::Point startPt,
                       float dt = 0.2,
                       float magnitudeOfAccelerationNoise = 0.5,
-                      size_t maxTrajectorySize = 100);
+                      size_t maxTrajectorySize = 20);
         
         const int getNumFramesWithoutUpdate();
         

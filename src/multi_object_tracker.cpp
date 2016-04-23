@@ -102,6 +102,18 @@ namespace OT {
             }
         }
         
+        // If a Kalman tracker does not have an assignment, but is inside a bounding box, then keep it alive.
+        for (size_t i = 0; i < assignment.size(); i++) {
+            if (assignment[i] == -1) {
+                for (size_t j = 0; j < boundingRects.size(); j++) {
+                    if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())) {
+                        this->kalmanTrackers[i].gotUpdate();
+                        break;
+                    }
+                }
+            }
+        }
+        
         // Remove any trackers that haven't been updated in a while.
         for (int i = 0; i < this->kalmanTrackers.size(); i++) {
             if (this->kalmanTrackers[i].getNumFramesWithoutUpdate() > this->missedFramesThreshold) {
