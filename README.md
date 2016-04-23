@@ -3,8 +3,9 @@
 ## Note
 This pipeline is still very much a prototype, so I'd appreciate any suggestions on how to improve its tracking ability or make it simpler (while maintaining similar performance). Thank you!
 
-## Intro
+This README describes how the tracking pipeline is implemented. I hope it can be helpful to you if you decide to build your own tracking pipeline.
 
+## Intro
 This is an object tracking pipeline that I built. It is designed for high mounted fixed cameras 
 to track objects moving in the scene below them. So, I'm making two important assumptions here:
 
