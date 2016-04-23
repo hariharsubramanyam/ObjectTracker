@@ -34,13 +34,29 @@ namespace OT {
         
         // Magnitude of acceleration noise. Used to set up Kalman trackers.
         float magnitudeOfAccelerationNoise;
+        
+        // Check if the Kalman filter at index i has another Kalman filter that can suppress it.
+        bool hasSuppressor(size_t i);
+        
+        // Any Kalman filter with a lifetime above this value cannot be suppressed.
+        int lifetimeSuppressionThreshold;
+        
+        // A Kalman filter can only be suppressed by another filter which is threshold * framDiagonal
+        // or closer.
+        float distanceSuppressionThreshold;
+        
+        // A Kalman filter can only be suppressed by another filter which is threshold times its age.
+        float ageSuppressionThreshold;
     public:
         MultiObjectTracker(cv::Size frameSize,
                            long lifetimeThreshold = 20,
                            float distanceThreshold = 0.1,
                            long missedFramesThreshold = 10,
                            float dt = 0.2,
-                           float magnitudeOfAccelerationNoise = 0.5);
+                           float magnitudeOfAccelerationNoise = 0.5,
+                           int lifetimeSuppressionThreshold = 20,
+                           float distanceSuppressionThreshold = 0.1,
+                           float ageSuppressionThreshold = 2);
         
         // Update the object tracker with the mass centers of the observed boundings rects.
         void update(const std::vector<cv::Point2f>& massCenters,

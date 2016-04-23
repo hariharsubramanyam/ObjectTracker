@@ -15,13 +15,19 @@ namespace OT {
                                            float distanceThreshold,
                                            long missedFramesThreshold,
                                            float dt,
-                                           float magnitudeOfAccelerationNoise) {
+                                           float magnitudeOfAccelerationNoise,
+                                           int lifetimeSuppressionThreshold,
+                                           float distanceSuppressionThreshold,
+                                           float ageSuppressionThreshold) {
         this->kalmanTrackers = std::vector<OT::KalmanTracker>();
         this->frameSize = frameSize;
         this->lifetimeThreshold = lifetimeThreshold;
         this->distanceThreshold = distanceThreshold;
         this->missedFramesThreshold = missedFramesThreshold;
         this->magnitudeOfAccelerationNoise = magnitudeOfAccelerationNoise;
+        this->lifetimeSuppressionThreshold = lifetimeSuppressionThreshold;
+        this->distanceSuppressionThreshold = distanceSuppressionThreshold;
+        this->ageSuppressionThreshold = ageSuppressionThreshold;
         this->dt = dt;
     }
     
@@ -149,11 +155,49 @@ namespace OT {
             }
         }
         
+        // Remove any suppressed filters.
+        for (size_t i = 0; i < this->kalmanTrackers.size(); i++) {
+            if (this->hasSuppressor(i)) {
+                this->kalmanTrackers.erase(this->kalmanTrackers.begin() + i);
+                i--;
+            }
+        }
+        
         // Now update the predictions.
         for (size_t i = 0; i < this->kalmanTrackers.size(); i++) {
             if (this->kalmanTrackers[i].getLifetime() > this->lifetimeThreshold) {
                 trackingOutputs.push_back(this->kalmanTrackers[i].latestTrackingOutput());
             }
         }
+    }
+    
+    bool MultiObjectTracker::hasSuppressor(size_t i) {
+        double dist;
+        cv::Point framePoint = cv::Point(this->frameSize.width, this->frameSize.height);
+        double frameDiagonal = std::sqrt(framePoint.dot(framePoint));
+        
+        for (size_t j = 0; j < this->kalmanTrackers.size(); j++) {
+            if (i == j) {
+                continue;
+            }
+            
+            if (this->kalmanTrackers[i].getLifetime() >= this->lifetimeSuppressionThreshold) {
+                continue;
+            }
+            
+            if (this->kalmanTrackers[j].getLifetime() <
+                this->ageSuppressionThreshold * this->kalmanTrackers[i].getLifetime()) {
+                continue;
+            }
+            
+            dist = cv::norm(this->kalmanTrackers[i].latestPrediction()
+                            - this->kalmanTrackers[j].latestPrediction());
+            dist /= frameDiagonal;
+            
+            if (dist <= this->distanceSuppressionThreshold) {
+                return true;
+            }
+        }
+        return false;
     }
 }
