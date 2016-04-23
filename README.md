@@ -9,7 +9,7 @@ to track objects moving in the scene below them. So, I'm making two important as
 Here's an outline of its operation, with explanations of why these decisions were made.
 
 ## Resize Image
-Computing on large images is expensive, so first shrink each frame down to **(300, 300)** pixels.
+Computing on large images is expensive, so I first shrink each frame down to **(300, 300)** pixels.
 
 ## Background Subtraction
 To separate the foreground (the moving objects) from the backgound, I use background subtraction
