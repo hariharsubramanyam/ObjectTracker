@@ -18,6 +18,15 @@ which has an implementation of the union-find (aka. disjoint set) data structure
 
 [OpenCV](http://opencv.org/), which does most of the heavy lifting for the computer vision tasks that I do.
 
+## Demo
+Here are some sample videos showing how the tracker works. The videos are taken from computer vision datasets.
+
+[One person](https://youtu.be/czICDnhEqRo)
+
+[Multiple people](https://youtu.be/uumkLHkNZ2Y)
+
+[Multiple people 2](https://youtu.be/RMJiSz4aK_8)
+
 ## Intro
 This is an object tracking pipeline that I built. It is designed for high mounted fixed cameras 
 to track objects moving in the scene below them. So, I'm making two important assumptions here:
