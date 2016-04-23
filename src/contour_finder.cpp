@@ -124,10 +124,10 @@ namespace OT {
         // indices of contours that should be merged.
         std::unordered_map<int, std::vector<int>> itemsForSet;
         for (size_t i = 0; i < contours.size(); i++) {
-            if (itemsForSet.find(i) == itemsForSet.end()) {
-                itemsForSet.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+            if (itemsForSet.find(sets.FindSet(i)) == itemsForSet.end()) {
+                itemsForSet.insert(std::pair<int, std::vector<int>>(sets.FindSet(i), std::vector<int>()));
             }
-            itemsForSet[i].push_back(sets.FindSet(i));
+            itemsForSet[sets.FindSet(i)].push_back(i);
         }
         
         // Now merge the contours.
