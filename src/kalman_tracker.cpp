@@ -24,7 +24,6 @@ namespace OT {
         this->kf = std::make_unique<cv::KalmanFilter>();
         this->trajectory = std::make_shared<std::vector<cv::Point>>();
         this->numFramesWithoutUpdate = 0;
-        this->previousPoint = startPt;
         this->prediction = startPt;
         this->lifetime = 0;
         
@@ -60,16 +59,11 @@ namespace OT {
         cv::Mat_<float> measurement = cv::Mat_<float>::zeros(2, 1);
         measurement(0) = pt.x;
         measurement(1) = pt.y;
-        this->previousPoint = pt;
         cv::Mat estimated = this->kf->correct(measurement);
         cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
         this->prediction.x = statePt.x;
         this->prediction.y = statePt.y;
         return statePt;
-    }
-    
-    cv::Point KalmanTracker::correct() {
-        return this->correct(this->previousPoint);
     }
     
     cv::Point KalmanTracker::predict() {

@@ -29,8 +29,6 @@ namespace OT {
         // The trajectory of the moving object.
         std::shared_ptr<std::vector<cv::Point>> trajectory;
         
-        cv::Point previousPoint;
-        
         // Store the latest prediction.
         cv::Point prediction;
         
@@ -64,7 +62,6 @@ namespace OT {
         cv::Point predict();
         cv::Point latestPrediction();
         cv::Point correct(cv::Point pt);
-        cv::Point correct();
         OT::TrackingOutput latestTrackingOutput();
     };
 }

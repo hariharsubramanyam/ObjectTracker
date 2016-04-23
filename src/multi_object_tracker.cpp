@@ -146,9 +146,6 @@ namespace OT {
             if (assignment[i] != -1) {
                 this->kalmanTrackers[i].correct(massCenters[assignment[i]]);
                 this->kalmanTrackers[i].gotUpdate();
-            } else {
-                // Otherwise update this with the previous step's measurement.
-                this->kalmanTrackers[i].correct();
             }
         }
         
