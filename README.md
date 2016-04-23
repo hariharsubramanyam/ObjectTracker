@@ -31,13 +31,13 @@ by removing all contours that have an **area that is less than 10% of the larges
 
 ### Merging
 Sometimes, an object **may appear as two small pieces, rather than one whole**. So, I want to merge contours that
-are near each other. TO do this, I have to explain two things:
+are near each other. To do this, I have to explain two things:
 
 1. What does it mean for contours to be near each other?
 2. How do you merge contours?
 
 To figure out if two contours are near each other, I first compute the **distance between their mass centers**, call it `dist`.
-Then, I look at the bounding boxes, call them `b1`, `b2`. Specifically, I decide to merge the two contours if:
+Then, I look at the bounding boxes, call them `b1` and `b2`. Specifically, I decide to merge the two contours if:
 
 ```
 dist <= 0.7 * max(max(b1.width, b1.height), max(b2.width, b2.height))
@@ -46,10 +46,10 @@ dist <= 0.7 * max(max(b1.width, b1.height), max(b2.width, b2.height))
 I keep track of contours that should be merged using the **union find** data structure.
 
 Well, that's how I find the contours that should be merged. How do I merge them? I simply find the **convex hull** around
-the set of contours that should be merged.
+each set of contours that must be merged.
 
 ### Second Pass
-After the merging process, I have our final set of contours. So, I **recompute the bounding boxes and mass centers**.
+After the merging process, I have the final set of contours. So, I **recompute the bounding boxes and mass centers**.
 
 ## Multiple Object Tracking
 Now, I feed these mass centers and bounding boxes to the multiple object tracker.
@@ -64,7 +64,7 @@ If there are **no mass centers**, I just **update each Kalman filter** (using th
 If there are some mass centers, but **no Kalman filters**, I **create one for each mass center**.
 
 ### Hungarian Algorithm
-Since the two base cases have been handle, now I can be sure that I have some Kalman filters and some mass centers.
+Since the two base cases have been handled, now I can be sure that I have some Kalman filters and some mass centers.
 
 So, the problem is: **how should mass centers be paired with Kalman filters?**
 
