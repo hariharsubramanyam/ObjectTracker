@@ -148,10 +148,8 @@ namespace OT {
                           std::back_inserter(aggregate));
             }
             
-            // Now merge the contours by computing the convex hull of their aggregate.
-            std::vector<cv::Point> hull;
-            cv::convexHull(aggregate, hull);
-            newContours.push_back(hull);
+            // Now use the merged contours instead of the original contours.
+            newContours.push_back(aggregate);
         }
         
         // Replace the old contours with the new ones.
