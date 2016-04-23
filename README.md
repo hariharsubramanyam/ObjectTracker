@@ -59,10 +59,7 @@ by removing all contours that have an **area that is less than 10% of the larges
 
 ### Merging
 Sometimes, an object **may appear as two small pieces, rather than one whole**. So, I want to merge contours that
-are near each other. To do this, I have to explain two things:
-
-1. What does it mean for contours to be near each other?
-2. How do you merge contours?
+are near each other. To do this, I have to first explain what it means for contours to be near each other.
 
 To figure out if two contours are near each other, I first compute the **distance between their mass centers**, call it `dist`.
 Then, I look at the bounding boxes, call them `b1` and `b2`. Specifically, I decide to merge the two contours if:
@@ -73,8 +70,7 @@ dist <= 0.7 * max(max(b1.width, b1.height), max(b2.width, b2.height))
 
 I keep track of contours that should be merged using the **union find** data structure.
 
-Well, that's how I find the contours that should be merged. How do I merge them? I simply find the **convex hull** around
-each set of contours that must be merged.
+To merge a set of contours, I just **aggregate their points** together to make one big contour.
 
 ### Second Pass
 After the merging process, I have the final set of contours. So, I **recompute the bounding boxes and mass centers**.
