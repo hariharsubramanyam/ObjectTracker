@@ -77,10 +77,13 @@ namespace OT {
         }
         
         // We need to associate each of the mass centers to their corresponding Kalman filter. First,
-        // let's find the pairwise distances.
+        // let's find the pairwise distances. However, we first divide this distance by the diagonal size
+        // of the frame to ensure that it is between 0 and 1.
+        cv::Point framePoint = cv::Point(this->frameSize.width, this->frameSize.height);
+        double frameDiagonal = std::sqrt(framePoint.dot(framePoint));
         for (size_t i = 0; i < predictions.size(); i++) {
             for (size_t j = 0; j < massCenters.size(); j++) {
-                costMatrix[i][j] = cv::norm(predictions[i] - massCenters[j]);
+                costMatrix[i][j] = cv::norm(predictions[i] - massCenters[j]) / frameDiagonal;
             }
         }
         
@@ -90,10 +93,9 @@ namespace OT {
         
         // Unassign any Kalman trackers whose distance to their assignment is too large.
         std::vector<int> kalmansWithoutCenters;
-        float frameDimension = 0.5 * (this->frameSize.height + this->frameSize.width);
         for (size_t i = 0; i < assignment.size(); i++) {
             if (assignment[i] != -1) {
-                if (costMatrix[i][assignment[i]] > this->distanceThreshold * frameDimension) {
+                if (costMatrix[i][assignment[i]] > this->distanceThreshold) {
                     assignment[i] = -1;
                     kalmansWithoutCenters.push_back(i);
                 }
