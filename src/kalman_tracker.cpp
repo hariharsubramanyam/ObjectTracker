@@ -92,19 +92,6 @@ namespace OT {
         this->trajectory->push_back(pt);
     }
     
-    void KalmanTracker::getTrajectorySegments(std::list<TrajectorySegment> *segments) {
-        segments->clear();
-        cv::Point prevPt;
-        bool hasPrevPt = false;
-        for (auto pt : *this->trajectory) {
-            if (hasPrevPt) {
-                segments->push_back(TrajectorySegment{prevPt, pt});
-            } else {
-                hasPrevPt = true;
-            }
-            prevPt = pt;
-        }
-    }
     
     long KalmanTracker::getLifetime() {
         return this->lifetime;
@@ -125,6 +112,15 @@ namespace OT {
     }
     
     OT::TrackingOutput KalmanTracker::latestTrackingOutput() {
-        return OT::TrackingOutput{this->id, this->latestPrediction(), this->color};
+        auto output = OT::TrackingOutput{
+            this->id,
+            this->latestPrediction(),
+            this->color,
+            std::list<cv::Point>()
+        };
+        std::copy(this->trajectory->cbegin(),
+                  this->trajectory->cend(),
+                  std::back_inserter(output.trajectory));
+        return output;
     }
 }
