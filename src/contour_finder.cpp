@@ -1,15 +1,19 @@
 #include "contour_finder.hpp"
 
 #include <numeric>
+#include <unordered_map>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
+
+#include "disjoint_set.hpp"
 
 namespace OT {
     ContourFinder::ContourFinder(int history,
                                  int nMixtures,
                                  float contourSizeThreshold,
-                                 int medianFilterSize) {
+                                 int medianFilterSize,
+                                 float contourMergeThreshold) {
         this->bg = cv::createBackgroundSubtractorMOG2();
         this->bg->setHistory(history);
         this->bg->setNMixtures(nMixtures);
@@ -17,6 +21,7 @@ namespace OT {
         this->bg->setShadowThreshold(0.5);
         this->contourSizeThreshold = contourSizeThreshold;
         this->medianFilterSize = medianFilterSize;
+        this->contourMergeThreshold = contourMergeThreshold;
     }
     
     /**
@@ -82,11 +87,79 @@ namespace OT {
         // Keep only those contours that are sufficiently large.
         this->filterOutBadContours(contours);
         
-        // Get the contours and bounding boxes.
+        // Get the mass centers and bounding boxes.
+        this->getCentersAndBoundingBoxes(contours, massCenters, boundingBoxes);
+        
+        // Merge nearby contours.
+        this->mergeContours(contours, massCenters, boundingBoxes);
+        
+        // Now find the mass centers and bounding boxes again.
         this->getCentersAndBoundingBoxes(contours, massCenters, boundingBoxes);
     }
     
-    void ContourFinder::getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point> > &contours,
+    void ContourFinder::mergeContours(std::vector<std::vector<cv::Point> > &contours,
+                                      const std::vector<cv::Point2f>& massCenters,
+                                      const std::vector<cv::Rect>& boundingBoxes) {
+        DisjointSets sets(contours.size());
+        double dimension;
+        for (size_t i = 0; i < contours.size(); i++) {
+            for (size_t j = 0; j < contours.size(); j++) {
+                if (i == j) {
+                    continue;
+                }
+                
+                // Otherwise, measure the distance between the mass centers,
+                // and if it's small enough, merge them.
+                dimension = std::max(std::max(boundingBoxes[i].width,
+                                              boundingBoxes[i].height),
+                                     std::max(boundingBoxes[j].width,
+                                              boundingBoxes[j].height));
+                if (cv::norm(massCenters[i] - massCenters[j]) < this->contourMergeThreshold * dimension) {
+                    sets.Union(i, j);
+                }
+            }
+        }
+        
+        // Create a map such that the values are the sets of
+        // indices of contours that should be merged.
+        std::unordered_map<int, std::vector<int>> itemsForSet;
+        for (size_t i = 0; i < contours.size(); i++) {
+            if (itemsForSet.find(i) == itemsForSet.end()) {
+                itemsForSet.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+            }
+            itemsForSet[i].push_back(sets.FindSet(i));
+        }
+        
+        // Now merge the contours.
+        std::vector<std::vector<cv::Point>> newContours;
+        for (auto kv : itemsForSet) {
+            // If there's only one item, just add it without doing any merge.
+            if (kv.second.size() == 1) {
+                newContours.push_back(contours[kv.first]);
+                continue;
+            }
+            
+            // Combine all the points of every contour
+            // that must be merged into the vector<vector<Point>> aggregate.
+            auto aggregate = contours[kv.second[0]];
+            for (size_t i = 1; i < kv.second.size(); i++) {
+                std::copy(contours[kv.second[i]].cbegin(),
+                          contours[kv.second[i]].cend(),
+                          std::back_inserter(aggregate));
+            }
+            
+            // Now merge the contours by computing the convex hull of their aggregate.
+            std::vector<cv::Point> hull;
+            cv::convexHull(aggregate, hull);
+            newContours.push_back(hull);
+        }
+        
+        // Replace the old contours with the new ones.
+        contours.clear();
+        std::copy(newContours.cbegin(), newContours.cend(), std::back_inserter(contours));
+    }
+    
+    void ContourFinder::getCentersAndBoundingBoxes(const std::vector<std::vector<cv::Point> > &contours,
                                                    std::vector<cv::Point2f> &massCenters,
                                                    std::vector<cv::Rect> &boundingBoxes) {
         // Empty the vectors.

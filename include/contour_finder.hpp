@@ -30,17 +30,31 @@ namespace OT {
         // It must be an odd number.
         int medianFilterSize;
         
+        // A threshold value between 0 and 1 that indicates when to merge to contours.
+        // We merge if the distance between their mass centers is <= dimension.
+        // The dimension is the largest value among the length/widths of the
+        // bounding boxes of the two contours.
+        float contourMergeThreshold;
+        
         /**
          * Find the mass centers and bounding boxes for the given contours.
          */
-        void getCentersAndBoundingBoxes(std::vector<std::vector<cv::Point>>& contours,
+        void getCentersAndBoundingBoxes(const std::vector<std::vector<cv::Point>>& contours,
                                         std::vector<cv::Point2f>& massCenters,
                                         std::vector<cv::Rect>& boundingBoxes);
+        
+        /**
+         * Merge nearby contours.
+         */
+        void mergeContours(std::vector<std::vector<cv::Point> > &contours,
+                           const std::vector<cv::Point2f>& massCenters,
+                           const std::vector<cv::Rect>& boundingBoxes);
     public:
         ContourFinder(int history = 1000,
                       int nMixtures = 3,
                       float contourSizeThreshold = 0.1,
-                      int medianFilterSize = 5);
+                      int medianFilterSize = 5,
+                      float contourMergeThreshold = 0.7);
         
         /**
          * Find contours representing the objects in the frame.

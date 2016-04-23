@@ -10,6 +10,7 @@ set( NAME_SRC
     src/multi_object_tracker.cpp
     src/hungarian.cpp
     src/contour_finder.cpp
+    src/disjoint_set.cpp
 )
 
 set( NAME_HEADERS
@@ -18,6 +19,7 @@ set( NAME_HEADERS
     include/multi_object_tracker.hpp
     include/hungarian.hpp
     include/contour_finder.hpp
+    include/disjoint_set.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
