@@ -5,6 +5,7 @@
 
 #include "kalman_tracker.hpp"
 
+#include <vector>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 
@@ -21,7 +22,7 @@ namespace OT {
         
         this->maxTrajectorySize = maxTrajectorySize;
         this->kf = std::make_unique<cv::KalmanFilter>();
-        this->trajectory = std::make_shared<std::list<cv::Point>>();
+        this->trajectory = std::make_shared<std::vector<cv::Point>>();
         this->numFramesWithoutUpdate = 0;
         this->previousPoint = startPt;
         this->prediction = startPt;
@@ -87,7 +88,8 @@ namespace OT {
     
     void KalmanTracker::addPointToTrajectory(cv::Point pt) {
         if (this->trajectory->size() >= this->maxTrajectorySize) {
-            this->trajectory->pop_front();
+            this->trajectory->erase(this->trajectory->begin(),
+                                    this->trajectory->begin()+1);
         }
         this->trajectory->push_back(pt);
     }
@@ -116,7 +118,7 @@ namespace OT {
             this->id,
             this->latestPrediction(),
             this->color,
-            std::list<cv::Point>()
+            std::vector<cv::Point>()
         };
         std::copy(this->trajectory->cbegin(),
                   this->trajectory->cend(),

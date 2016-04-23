@@ -108,6 +108,7 @@ int main(int argc, char **argv) {
         // Draw a cross for each predicted location.
         for (auto pred : predictions) {
             OT::DrawUtils::drawCross(frame, pred.location, pred.color, 5);
+            OT::DrawUtils::drawTrajectory(frame, pred.trajectory, pred.color);
         }
         imshow("Video", frame);
     }

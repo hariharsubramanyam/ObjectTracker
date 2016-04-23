@@ -1,4 +1,7 @@
 #include "draw_utils.hpp"
+
+#include <vector>
+
 #include <opencv2/opencv.hpp>
 
 namespace OT {
@@ -29,6 +32,17 @@ namespace OT {
                                        boundingRect.y + (boundingRect.height/2));
           cv::circle(img,center, 3, cv::Scalar(0, 0, 255), -1, 1,0);
           return center;
+      }
+      
+      void drawTrajectory(const cv::Mat& img,
+                          const std::vector<cv::Point>& trajectory,
+                          const cv::Scalar color) {
+          if (trajectory.size() < 2) {
+              return;
+          }
+          for (size_t i = 0; i < trajectory.size() - 1; i++) {
+              line(img, trajectory[i], trajectory[i+1], color, 1, CV_AA, 0);
+          }
       }
   }
 }

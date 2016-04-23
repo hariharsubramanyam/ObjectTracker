@@ -2,7 +2,7 @@
 #define KALMAN_TRACKER_HPP
 
 #include <memory>
-#include <list>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
@@ -13,7 +13,7 @@ namespace OT {
         int id;
         cv::Point location;
         cv::Scalar color;
-        std::list<cv::Point> trajectory;
+        std::vector<cv::Point> trajectory;
     };
     
     class KalmanTracker {
@@ -27,7 +27,7 @@ namespace OT {
         size_t maxTrajectorySize;
         
         // The trajectory of the moving object.
-        std::shared_ptr<std::list<cv::Point>> trajectory;
+        std::shared_ptr<std::vector<cv::Point>> trajectory;
         
         cv::Point previousPoint;
         
