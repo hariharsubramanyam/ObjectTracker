@@ -19,6 +19,7 @@ namespace OT {
         this->bg->setNMixtures(nMixtures);
         this->bg->setDetectShadows(true);
         this->bg->setShadowThreshold(0.5);
+        this->suppressRectangles = std::vector<cv::Rect>();
         this->contourSizeThreshold = contourSizeThreshold;
         this->medianFilterSize = medianFilterSize;
         this->contourMergeThreshold = contourMergeThreshold;
@@ -89,6 +90,9 @@ namespace OT {
         
         // Get the mass centers and bounding boxes.
         this->getCentersAndBoundingBoxes(contours, massCenters, boundingBoxes);
+        
+        // Remove any mass centers that appear in the suppressed rectangles.
+        this->suppressMassCenters(contours, massCenters, boundingBoxes);
         
         // Merge nearby contours.
         this->mergeContours(contours, massCenters, boundingBoxes);
@@ -177,6 +181,26 @@ namespace OT {
             // Compute the polygon represented by the contour, and then compute the bounding box around that polygon.
             cv::approxPolyDP(cv::Mat(contours[i]), contourPolygons[i], 3, true);
             boundingBoxes.push_back(cv::boundingRect(cv::Mat(contourPolygons[i])));
+        }
+    }
+    
+    void ContourFinder::suppressRectangle(cv::Rect rect) {
+        this->suppressRectangles.push_back(rect);
+    }
+    
+    void ContourFinder::suppressMassCenters(std::vector<std::vector<cv::Point> > &contours,
+                                            std::vector<cv::Point2f> &massCenters,
+                                            std::vector<cv::Rect> &boundingBoxes) {
+        for (size_t i = 0; i < contours.size(); i++) {
+            for (size_t j = 0; j < this->suppressRectangles.size(); j++) {
+                if (this->suppressRectangles[j].contains(massCenters[i])) {
+                    contours.erase(contours.begin() + i);
+                    massCenters.erase(massCenters.begin() + i);
+                    boundingBoxes.erase(boundingBoxes.begin() + i);
+                    i--;
+                    break;
+                }
+            }
         }
     }
 }

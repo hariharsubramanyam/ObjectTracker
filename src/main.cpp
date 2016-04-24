@@ -12,6 +12,29 @@
 #include "multi_object_tracker.hpp"
 #include "contour_finder.hpp"
 
+
+// The mouse callback to allow the user to draw a rectangle on the screen.
+bool isDragging = false;
+bool hasRectangle = false;
+bool triggerCallback = false;
+cv::Point point1, point2;
+
+void mouseHandler(int event, int x, int y, int flags, void* param) {
+    if (event == CV_EVENT_LBUTTONDOWN && !isDragging) {
+        point1 = cv::Point(x, y);
+        isDragging = true;
+    } else if (event == CV_EVENT_MOUSEMOVE && isDragging) {
+        point2 = cv::Point(x, y);
+        hasRectangle = true;
+    } else if (event == CV_EVENT_LBUTTONUP && isDragging) {
+        point2 = cv::Point(x, y);
+        isDragging = false;
+        triggerCallback = true;
+        hasRectangle = false;
+    }
+}
+
+
 /**
  * Check if there's another frame in the video capture. We do this by first checking if the user has quit (i.e. pressed
  * the "Q" key) and then trying to retrieve the next frame of the video.
@@ -79,6 +102,10 @@ int main(int argc, char **argv) {
     if(!capture.isOpened()) {
         std::cerr << "Problem opening video source" << std::endl;
     }
+    
+    // Set the mouse callback.
+    cv::namedWindow("Video");
+    cv::setMouseCallback("Video", mouseHandler);
 
 
     // Repeat while the user has not pressed "q" and while there's another frame.
@@ -110,6 +137,17 @@ int main(int argc, char **argv) {
             OT::DrawUtils::drawCross(frame, pred.location, pred.color, 5);
             OT::DrawUtils::drawTrajectory(frame, pred.trajectory, pred.color);
         }
+        
+        
+        if (hasRectangle || triggerCallback) {
+            cv::rectangle(frame, point1, point2, cv::Scalar::all(255));
+        }
+        
+        if (triggerCallback) {
+            triggerCallback = false;
+            contourFinder.suppressRectangle(cv::Rect(point1, point2));
+        }
+        
         imshow("Video", frame);
     }
     return 0;

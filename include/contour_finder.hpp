@@ -36,6 +36,14 @@ namespace OT {
         // bounding boxes of the two contours.
         float contourMergeThreshold;
         
+        // Ignore mass centers that appear in these rectangles.
+        std::vector<cv::Rect> suppressRectangles;
+        
+        // Suppress any mass centers that appear in the suppress rectangles.
+        void suppressMassCenters(std::vector<std::vector<cv::Point>>& contours,
+                                 std::vector<cv::Point2f>& massCenters,
+                                 std::vector<cv::Rect>& boundingBoxes);
+        
         /**
          * Find the mass centers and bounding boxes for the given contours.
          */
@@ -64,6 +72,8 @@ namespace OT {
                           std::vector<std::vector<cv::Point>>& contours,
                           std::vector<cv::Point2f>& massCenters,
                           std::vector<cv::Rect>& boundingBoxes);
+        
+        void suppressRectangle(cv::Rect rect);
     };
 }
 
