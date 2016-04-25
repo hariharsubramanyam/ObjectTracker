@@ -62,6 +62,9 @@ namespace OT {
                                      std::vector<std::vector<cv::Point>>& contours,
                                      std::vector<cv::Point2f>& massCenters,
                                      std::vector<cv::Rect>& boundingBoxes) {
+        // Set the diagonal.
+        this->diagonal = std::sqrt(frame.rows * frame.rows + frame.cols * frame.cols);
+        
         // First clear the conotour and hierarchy objects.
         contours.clear();
         hierarchy.clear();
@@ -105,7 +108,6 @@ namespace OT {
                                       const std::vector<cv::Point2f>& massCenters,
                                       const std::vector<cv::Rect>& boundingBoxes) {
         DisjointSets sets(contours.size());
-        double dimension;
         for (size_t i = 0; i < contours.size(); i++) {
             for (size_t j = 0; j < contours.size(); j++) {
                 if (i == j) {
@@ -114,11 +116,8 @@ namespace OT {
                 
                 // Otherwise, measure the distance between the mass centers,
                 // and if it's small enough, merge them.
-                dimension = std::max(std::max(boundingBoxes[i].width,
-                                              boundingBoxes[i].height),
-                                     std::max(boundingBoxes[j].width,
-                                              boundingBoxes[j].height));
-                if (cv::norm(massCenters[i] - massCenters[j]) < this->contourMergeThreshold * dimension) {
+                if (cv::norm(massCenters[i] - massCenters[j]) <
+                    this->contourMergeThreshold * this->diagonal) {
                     sets.Union(i, j);
                 }
             }

@@ -31,10 +31,11 @@ namespace OT {
         int medianFilterSize;
         
         // A threshold value between 0 and 1 that indicates when to merge to contours.
-        // We merge if the distance between their mass centers is <= dimension.
-        // The dimension is the largest value among the length/widths of the
-        // bounding boxes of the two contours.
+        // We merge if the distance between their mass centers is <= diagonal.
         float contourMergeThreshold;
+        
+        // The length of the diagonal.
+        float diagonal;
         
         // Ignore mass centers that appear in these rectangles.
         std::vector<cv::Rect> suppressRectangles;
@@ -61,8 +62,8 @@ namespace OT {
         ContourFinder(int history = 1000,
                       int nMixtures = 3,
                       float contourSizeThreshold = 0.1,
-                      int medianFilterSize = 5,
-                      float contourMergeThreshold = 0.7);
+                      int medianFilterSize = 9,
+                      float contourMergeThreshold = 0.05);
         
         /**
          * Find contours representing the objects in the frame.
