@@ -25,6 +25,32 @@ namespace OT {
         this->contourMergeThreshold = contourMergeThreshold;
     }
     
+    cv::Point translate(cv::Rect rect, std::pair<int, int> widthHeight) {
+        return cv::Point(rect.tl().x + widthHeight.first * rect.width,
+                         rect.tl().y + widthHeight.second * rect.height);
+    }
+    
+    float distanceBetweenRects(cv::Rect a, cv::Rect b) {
+        std::vector<std::pair<int, int>> pairs = {
+            std::make_pair(0, 0),
+            std::make_pair(0, 1),
+            std::make_pair(1, 0),
+            std::make_pair(1, 1)
+        };
+        
+        double minDist = cv::norm(a.tl() - b.tl());
+        for (size_t i = 0; i < pairs.size(); i++) {
+            for (size_t j = 0; j < pairs.size(); j++) {
+                minDist = std::min(minDist,
+                                   cv::norm(translate(a, pairs[i])
+                                            - translate(b, pairs[j])
+                                            )
+                                   );
+            }
+        }
+        return minDist;
+    }
+    
     /**
      * Remove contours if they are are too small.
      */
@@ -109,14 +135,10 @@ namespace OT {
                                       const std::vector<cv::Rect>& boundingBoxes) {
         DisjointSets sets(contours.size());
         for (size_t i = 0; i < contours.size(); i++) {
-            for (size_t j = 0; j < contours.size(); j++) {
-                if (i == j) {
-                    continue;
-                }
-                
-                // Otherwise, measure the distance between the mass centers,
+            for (size_t j = i + 1; j < contours.size(); j++) {
+                // Measure the distance between the mass centers,
                 // and if it's small enough, merge them.
-                if (cv::norm(massCenters[i] - massCenters[j]) <
+                if (distanceBetweenRects(boundingBoxes[i], boundingBoxes[j]) <
                     this->contourMergeThreshold * this->diagonal) {
                     sets.Union(i, j);
                 }
