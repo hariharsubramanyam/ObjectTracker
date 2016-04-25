@@ -47,6 +47,10 @@ namespace OT {
         
         // A Kalman filter can only be suppressed by another filter which is threshold times its age.
         float ageSuppressionThreshold;
+        
+        // Check if the tracker prediction at index i shares the given
+        // bounding rectangle with another point.
+        bool sharesBoundingRect(size_t i, cv::Rect boundingRect);
     public:
         MultiObjectTracker(cv::Size frameSize,
                            long lifetimeThreshold = 20,

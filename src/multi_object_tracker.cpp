@@ -110,14 +110,15 @@ namespace OT {
             }
         }
         
-        // If a Kalman tracker does not have an assignment, but is inside a bounding box, then keep it alive.
+        // If a Kalman tracker is contained in a bounding box and shares its
+        // bounding box with another tracker, remove its assignment and mark it
+        // as updated.
         for (size_t i = 0; i < assignment.size(); i++) {
-            if (assignment[i] == -1) {
-                for (size_t j = 0; j < boundingRects.size(); j++) {
-                    if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())) {
-                        this->kalmanTrackers[i].gotUpdate();
-                        break;
-                    }
+            for (size_t j = 0; j < boundingRects.size(); j++) {
+                if (boundingRects[j].contains(this->kalmanTrackers[i].latestPrediction())
+                    && this->sharesBoundingRect(i, boundingRects[j])) {
+                    this->kalmanTrackers[i].gotUpdate();
+                    break;
                 }
             }
         }
@@ -169,6 +170,18 @@ namespace OT {
                 trackingOutputs.push_back(this->kalmanTrackers[i].latestTrackingOutput());
             }
         }
+    }
+    
+    bool MultiObjectTracker::sharesBoundingRect(size_t i, cv::Rect boundingRect) {
+        for (size_t j = 0; j < this->kalmanTrackers.size(); j++) {
+            if (i == j) {
+                continue;
+            }
+            if (boundingRect.contains(this->kalmanTrackers[i].latestPrediction())) {
+                return true;
+            }
+        }
+        return false;
     }
     
     bool MultiObjectTracker::hasSuppressor(size_t i) {
