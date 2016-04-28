@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -11,6 +12,7 @@
 #include "kalman_tracker.hpp"
 #include "multi_object_tracker.hpp"
 #include "contour_finder.hpp"
+#include "tracker_log.hpp"
 
 
 // The mouse callback to allow the user to draw a rectangle on the screen.
@@ -89,6 +91,12 @@ int main(int argc, char **argv) {
     
     // We'll use a ContourFinder to do the actual extraction of contours from the image.
     OT::ContourFinder contourFinder;
+    
+    // We'll count the frame with this variable.
+    long frameNumber = 0;
+    
+    // This will log all of the tracked objects.
+    OT::TrackerLog trackerLog(true);
 
     // Read the first positional command line argument and use that as the video
     // source. If no argument has been provided, use the webcam.
@@ -96,6 +104,15 @@ int main(int argc, char **argv) {
       capture.open(argv[1]);
     } else {
       capture.open(0);
+    }
+    
+    // Read the second positional command line argument and use that as the log
+    // for the output file.
+    bool hasOutputFile = false;
+    std::ofstream outputFile;
+    if (argc > 2) {
+        hasOutputFile = true;
+        outputFile.open(argv[2]);
     }
     
     // Ensure that the video has been opened correctly.
@@ -112,7 +129,9 @@ int main(int argc, char **argv) {
     while(hasFrame(capture)) {
         // Fetch the next frame.
         capture.retrieve(frame);
+        frameNumber++;
         
+        // Resize the frame to reduce the time required for computation.
         cv::resize(frame, frame, cv::Size(300, 300));
         
         // Create the tracker if it isn't created yet.
@@ -132,13 +151,20 @@ int main(int argc, char **argv) {
         std::vector<OT::TrackingOutput> predictions;
         tracker->update(mc, boundRect, predictions);
         
-        // Draw a cross for each predicted location.
         for (auto pred : predictions) {
+            // Draw a cross at the location of the prediction.
             OT::DrawUtils::drawCross(frame, pred.location, pred.color, 5);
+            
+            // Draw the trajectory for the prediction.
             OT::DrawUtils::drawTrajectory(frame, pred.trajectory, pred.color);
+            
+            // Update the tracker log.
+            if (hasOutputFile) {
+                trackerLog.addTrack(pred.id, pred.location.x, pred.location.y, frameNumber);
+            }
         }
         
-        
+        // Handle mouse callbacks.
         if (hasRectangle || triggerCallback) {
             cv::rectangle(frame, point1, point2, cv::Scalar::all(255));
         }
@@ -150,5 +176,13 @@ int main(int argc, char **argv) {
         
         imshow("Video", frame);
     }
+    
+    
+    // Log the output file if we need to.
+    if (hasOutputFile) {
+        trackerLog.logToFile(outputFile);
+        outputFile.close();
+    }
+    
     return 0;
 }
