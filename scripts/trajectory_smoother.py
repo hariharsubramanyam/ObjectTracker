@@ -1,7 +1,6 @@
 import json
 import sys
 import numpy as np
-from scipy.signal import medfilt
 from scipy.ndimage.filters import gaussian_filter
 
 # The first positional argument is the path to the JSON file.
@@ -38,7 +37,7 @@ def acceleration(i, track):
         return acceleration(i - 1, track)
     else:
         (xp, yp, framep) = track[i - 1]
-        (xn, yb, framen) = track[i + 1]
+        (xn, yn, framen) = track[i + 1]
         h1 = frame - framep
         h2 = framen - frame
         return ((xn - 2 * x + xp) / (h1 * h2), (yn - 2 * y + yp) / (h1 * h2))
