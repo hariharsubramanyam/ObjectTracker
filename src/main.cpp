@@ -13,6 +13,7 @@
 #include "multi_object_tracker.hpp"
 #include "contour_finder.hpp"
 #include "tracker_log.hpp"
+#include "cmdparser.hpp"
 
 #include <zmq.hpp>
 #include <string>
@@ -59,6 +60,7 @@ bool hasFrame(cv::VideoCapture& capture) {
     return hasNotQuit && hasAnotherFrame;
 }
 
+
 /**
  * Draw the contours in a new image and show them.
  */
@@ -84,6 +86,13 @@ void contourShow(std::string drawingName,
 
 
 int main(int argc, char **argv) {
+    // Parse the command line arguments.
+    cli::Parser parser(argc, argv);
+    parser.set_optional<std::string>("i", "input",  "", "path to the input video (leave out -w if you use this)");
+    parser.set_optional<std::string>("o", "output", "", "path to the output JSON file");
+    parser.set_optional<int>("w", "webcam", 0, "number to use (leave out -i if you use this)");
+    parser.run_and_exit_if_error();
+    
     // This does the actual tracking of the objects. We can't initialize it now because
     // it needs to know the size of the frame. So, we set it equal to nullptr and initialize
     // it after we get the first frame.
@@ -112,24 +121,23 @@ int main(int argc, char **argv) {
 
     // Read the first positional command line argument and use that as the video
     // source. If no argument has been provided, use the webcam.
-    if (argc > 1) {
-      capture.open(argv[1]);
+    if (parser.get<std::string>("i").empty()) {
+        capture.open(parser.get<int>("w"));
     } else {
-      capture.open(0);
+        capture.open(parser.get<std::string>("i"));
     }
     
     // Prepare context and socket
-    zmq::context_t context(1);
-    zmq::socket_t socket (context, ZMQ_PUB);
-    socket.bind ("tcp://*:5555");
+//    zmq::context_t context(1);
+//    zmq::socket_t socket (context, ZMQ_PUB);
+//    socket.bind ("tcp://*:5555");
     
     // Read the second positional command line argument and use that as the log
     // for the output file.
-    bool hasOutputFile = false;
+    std::string outputFilePath = parser.get<std::string>("o");
     std::ofstream outputFile;
-    if (argc > 2) {
-        hasOutputFile = true;
-        outputFile.open(argv[2]);
+    if (!outputFilePath.empty()) {
+        outputFile.open(outputFilePath);
     }
     
     // Ensure that the video has been opened correctly.
@@ -176,15 +184,15 @@ int main(int argc, char **argv) {
             OT::DrawUtils::drawTrajectory(frame, pred.trajectory, pred.color);
             
             // Update the tracker log.
-            if (hasOutputFile) {
+            if (!outputFilePath.empty()) {
                 trackerLog.addTrack(pred.id, pred.location.x, pred.location.y, frameNumber);
             }
-            char buffer2 [50];
-            printf("%d, %d \n", pred.location.x, pred.location.y);
-            sprintf(buffer2, "x = %d, y = %d", pred.location.x, pred.location.y);
-            zmq::message_t reply2 (50);
-            memcpy (reply2.data (), buffer2, 50);
-            socket.send (reply2);
+//            char buffer2 [50];
+//            printf("%d, %d \n", pred.location.x, pred.location.y);
+//            sprintf(buffer2, "x = %d, y = %d", pred.location.x, pred.location.y);
+//            zmq::message_t reply2 (50);
+//            memcpy (reply2.data (), buffer2, 50);
+//            socket.send (reply2);
         }
         
         // Handle mouse callbacks.
@@ -202,7 +210,7 @@ int main(int argc, char **argv) {
     
     
     // Log the output file if we need to.
-    if (hasOutputFile) {
+    if (!outputFilePath.empty()) {
         trackerLog.logToFile(outputFile);
         outputFile.close();
     }

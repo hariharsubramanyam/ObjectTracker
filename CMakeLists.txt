@@ -22,6 +22,8 @@ set( NAME_HEADERS
     include/contour_finder.hpp
     include/disjoint_set.hpp
     include/tracker_log.hpp
+    include/json.hpp
+    include/cmdparser.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
