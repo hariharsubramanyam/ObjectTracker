@@ -4,6 +4,7 @@ import numpy as np
 from scipy.signal import medfilt
 from scipy.ndimage.filters import gaussian_filter
 
+# The first positional argument is the path to the JSON file.
 data = json.load(open(sys.argv[1]))
 
 
@@ -14,9 +15,33 @@ def smoothTrajectory(track, sigma=51):
     return zip(xvals, yvals, trackNp[2])
 
 
-def transform(i, track):
+def velocity(i, track):
     (x, y, frame) = track[i]
-    return (x, y)
+    if len(track) <= 1:
+        return (x, y)
+
+    if i == 0:
+        return velocity(i + 1, track)
+    else:
+        (xp, yp, framep) = track[i - 1]
+        return ((x - xp) / (frame - framep), (y - yp) / (frame - framep))
+
+
+def acceleration(i, track):
+    (x, y, frame) = track[i]
+    if len(track) <= 2:
+        return (x, y)
+
+    if i == 0:
+        return acceleration(i + 1, track)
+    elif i == len(track) - 1:
+        return acceleration(i - 1, track)
+    else:
+        (xp, yp, framep) = track[i - 1]
+        (xn, yb, framen) = track[i + 1]
+        h1 = frame - framep
+        h2 = framen - frame
+        return ((xn - 2 * x + xp) / (h1 * h2), (yn - 2 * y + yp) / (h1 * h2))
 
 
 trackForId = {}
@@ -36,13 +61,16 @@ for trackerId in trackForId:
         if frame not in pointsForFrame:
             pointsForFrame[frame] = []
 
-        (tx, ty) = transform(i, track)
-        pointsForFrame[frame].append((x, y, tx, ty, frame, trackerId))
+        (xVel, yVel) = velocity(i, track)
+        (xAcc, yAcc) = velocity(i, track)
+        pointsForFrame[frame].append((x, y, xVel, yVel, xAcc, yAcc, frame,
+                                      trackerId))
 
-print "frame, x, y, tx, ty, trackerId, trackerIndex"
+print "frame, x, y, xVel, yVel, xAcc, yAcc, trackerId, trackerIndex"
 for i in xrange(0, data["numFrames"]):
     if i not in pointsForFrame:
         continue
-    for (x, y, tx, ty, frame, trackerId) in pointsForFrame[i]:
-        print ",".join((str(frame), str(x), str(y), str(tx), str(ty), str(
-            trackerId), str(indexForTrackerId[trackerId])))
+    for (x, y, xVel, yVel, xAcc, yAcc, frame, trackerId) in pointsForFrame[i]:
+        print ",".join((str(frame), str(x), str(y), str(xVel), str(yVel), str(
+            xAcc), str(yAcc), str(trackerId), str(indexForTrackerId[trackerId])
+                        ))
