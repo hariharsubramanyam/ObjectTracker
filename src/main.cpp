@@ -37,6 +37,7 @@ cv::Point point1, point2;
 void mouseHandler(int event, int x, int y, int flags, void* param) {
     if (event == CV_EVENT_LBUTTONDOWN && !isDragging) {
         point1 = cv::Point(x, y);
+        std::cout << "Clicked " << point1 << std::endl;
         isDragging = true;
     } else if (event == CV_EVENT_MOUSEMOVE && isDragging) {
         point2 = cv::Point(x, y);
@@ -84,6 +85,24 @@ void contourShow(std::string drawingName,
     cv::imshow(drawingName, drawing);
 }
 
+cv::Mat getPerspectiveMatrix(cv::Point2f tl,
+                             cv::Point2f tr,
+                             cv::Point2f br,
+                             cv::Point2f bl,
+                             cv::Size& size) {
+    cv::Point2f input[4] = {tl, tr, br, bl};
+    auto widthA = cv::norm(br - bl);
+    auto widthB = cv::norm(tr - tl);
+    float maxWidth = std::max(widthA, widthB);
+    
+    auto heightA = cv::norm(tr - br);
+    auto heightB = cv::norm(tl - bl);
+    float maxHeight = std::max(heightA, heightB);
+    
+    cv::Point2f output[4] = {{0, 0}, {maxWidth - 1, 0}, {maxWidth - 1, maxHeight - 1}, {0, maxHeight - 1}};
+    return cv::getPerspectiveTransform(input, output);
+}
+
 
 int main(int argc, char **argv) {
     // Parse the command line arguments.
@@ -91,6 +110,7 @@ int main(int argc, char **argv) {
     parser.set_optional<std::string>("i", "input",  "", "path to the input video (leave out -w if you use this)");
     parser.set_optional<std::string>("o", "output", "", "path to the output JSON file");
     parser.set_optional<int>("w", "webcam", 0, "number to use (leave out -i if you use this)");
+    parser.set_optional<std::vector<int>>("p", "perspective_points", std::vector<int>(), "The perspective points");
     parser.run_and_exit_if_error();
     
     // This does the actual tracking of the objects. We can't initialize it now because
@@ -127,6 +147,21 @@ int main(int argc, char **argv) {
         capture.open(parser.get<std::string>("i"));
     }
     
+    // Get the perspective transform, if there is one.
+    auto perspectivePoints = parser.get<std::vector<int>>("p");
+    bool hasPerspective = false;
+    cv::Mat perspectiveMatrix;
+    cv::Size perspectiveSize;
+    if (!perspectivePoints.empty()) {
+        hasPerspective = true;
+        std::vector<cv::Point> points;
+        for (size_t i = 0; i < 4; i++) {
+            points.push_back(cv::Point(perspectivePoints[i*2], perspectivePoints[i*2+1]));
+        }
+        perspectiveMatrix = getPerspectiveMatrix(points[0], points[1], points[2], points[3], perspectiveSize);
+    }
+    
+    
     // Prepare context and socket
 //    zmq::context_t context(1);
 //    zmq::socket_t socket (context, ZMQ_PUB);
@@ -155,6 +190,12 @@ int main(int argc, char **argv) {
         // Fetch the next frame.
         capture.retrieve(frame);
         frameNumber++;
+        
+        imshow("original", frame);
+        
+        if (hasPerspective) {
+            cv::warpPerspective(frame, frame, perspectiveMatrix, perspectiveSize);
+        }
         
         // Resize the frame to reduce the time required for computation.
         cv::resize(frame, frame, cv::Size(300, 300));
