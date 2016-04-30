@@ -182,7 +182,9 @@ int main(int argc, char **argv) {
     
     // Set the mouse callback.
     cv::namedWindow("Video");
+    cv::namedWindow("Original");
     cv::setMouseCallback("Video", mouseHandler);
+    cv::setMouseCallback("Original", mouseHandler);
 
 
     // Repeat while the user has not pressed "q" and while there's another frame.
@@ -191,7 +193,7 @@ int main(int argc, char **argv) {
         capture.retrieve(frame);
         frameNumber++;
         
-        imshow("original", frame);
+        imshow("Original", frame);
         
         if (hasPerspective) {
             cv::warpPerspective(frame, frame, perspectiveMatrix, perspectiveSize);
