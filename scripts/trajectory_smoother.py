@@ -1,10 +1,28 @@
 import json
 import sys
 import numpy as np
+import argparse
 from scipy.ndimage.filters import gaussian_filter
 
+parser = argparse.ArgumentParser(
+    description=
+    'Create smoothed trajectories, velocities, and accelerations from JSON.')
+parser.add_argument('input',
+                    metavar='input',
+                    type=str,
+                    help="Path to the input JSON file")
+parser.add_argument('timestamp',
+                    metavar='timestamp',
+                    type=float,
+                    help="Starting timestamp of the video")
+parser.add_argument('duration',
+                    metavar='duration',
+                    type=float,
+                    help='Duration of the video in seconds')
+args = parser.parse_args()
+
 # The first positional argument is the path to the JSON file.
-data = json.load(open(sys.argv[1]))
+data = json.load(open(args.input))
 
 
 def smoothTrajectory(track, sigma=51):
@@ -26,6 +44,11 @@ def velocity(i, track):
         return ((x - xp) / (frame - framep), (y - yp) / (frame - framep))
 
 
+def get_timestamp(currFrame, totalFrames, startingTs, duration):
+    proportionOfVideo = float(currFrame) / float(totalFrames)
+    return startingTs + proportionOfVideo * duration
+
+
 def acceleration(i, track):
     (x, y, frame) = track[i]
     if len(track) <= 2:
@@ -42,6 +65,8 @@ def acceleration(i, track):
         h2 = framen - frame
         return ((xn - 2 * x + xp) / (h1 * h2), (yn - 2 * y + yp) / (h1 * h2))
 
+
+numFrames = float(data["numFrames"])
 
 trackForId = {}
 indexForTrackerId = {}
@@ -65,11 +90,12 @@ for trackerId in trackForId:
         pointsForFrame[frame].append((x, y, xVel, yVel, xAcc, yAcc, frame,
                                       trackerId))
 
-print "frame, x, y, xVel, yVel, xAcc, yAcc, trackerId, trackerIndex"
+print "frame, timestamp, x, y, xVel, yVel, xAcc, yAcc, trackerId, trackerIndex"
 for i in xrange(0, data["numFrames"]):
     if i not in pointsForFrame:
         continue
     for (x, y, xVel, yVel, xAcc, yAcc, frame, trackerId) in pointsForFrame[i]:
-        print ",".join((str(frame), str(x), str(y), str(xVel), str(yVel), str(
-            xAcc), str(yAcc), str(trackerId), str(indexForTrackerId[trackerId])
-                        ))
+        print ",".join((str(frame), str(get_timestamp(
+            frame, numFrames, args.timestamp, args.duration)), str(x), str(
+                y), str(xVel), str(yVel), str(xAcc), str(yAcc), str(trackerId),
+                        str(indexForTrackerId[trackerId])))
