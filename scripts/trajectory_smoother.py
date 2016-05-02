@@ -96,7 +96,7 @@ for trackerId in trackForId:
             pointsForFrame[frame] = []
 
         (xVel, yVel) = velocity(i, track)
-        (xAcc, yAcc) = velocity(i, track)
+        (xAcc, yAcc) = acceleration(i, track)
         pointsForFrame[frame].append((x, y, xVel, yVel, xAcc, yAcc, frame,
                                       trackerId))
 
