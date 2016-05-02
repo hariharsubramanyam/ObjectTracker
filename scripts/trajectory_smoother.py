@@ -66,6 +66,10 @@ def acceleration(i, track):
         return ((xn - 2 * x + xp) / (h1 * h2), (yn - 2 * y + yp) / (h1 * h2))
 
 
+def mag(a, b):
+    return (a**2 + b**2)**(0.5)
+
+
 numFrames = float(data["numFrames"])
 
 trackForId = {}
@@ -90,12 +94,13 @@ for trackerId in trackForId:
         pointsForFrame[frame].append((x, y, xVel, yVel, xAcc, yAcc, frame,
                                       trackerId))
 
-print "frame, timestamp, x, y, xVel, yVel, xAcc, yAcc, trackerId, trackerIndex"
+print "frame, timestamp, x, y, xVel, yVel, velMag, xAcc, yAcc, accMag, trackerId, trackerIndex"
 for i in xrange(0, data["numFrames"]):
     if i not in pointsForFrame:
         continue
     for (x, y, xVel, yVel, xAcc, yAcc, frame, trackerId) in pointsForFrame[i]:
         print ",".join((str(frame), str(get_timestamp(
             frame, numFrames, args.timestamp, args.duration)), str(x), str(
-                y), str(xVel), str(yVel), str(xAcc), str(yAcc), str(trackerId),
-                        str(indexForTrackerId[trackerId])))
+                y), str(xVel), str(yVel), str(mag(xVel, yVel)), str(xAcc), str(
+                    yAcc), str(mag(xAcc, yAcc)), str(trackerId), str(
+                        indexForTrackerId[trackerId])))
