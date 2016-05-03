@@ -15,6 +15,7 @@
 #include "contour_finder.hpp"
 #include "tracker_log.hpp"
 #include "cmdparser.hpp"
+#include "utils.hpp"
 #include "perspective_transformer.hpp"
 
 namespace OT {
@@ -41,18 +42,6 @@ namespace OT {
                     hasRectangle = false;
                 }
             }
-            
-            
-            /**
-             * Check if there's another frame in the video capture. We do this by first checking if the user has quit (i.e. pressed
-             * the "Q" key) and then trying to retrieve the next frame of the video.
-             */
-            bool hasFrame(cv::VideoCapture& capture) {
-                bool hasNotQuit = ((char) cv::waitKey(1)) != 'q';
-                bool hasAnotherFrame = capture.grab();
-                return hasNotQuit && hasAnotherFrame;
-            }
-            
             
             /**
              * Draw the contours in a new image and show them.
@@ -155,7 +144,7 @@ namespace OT {
                 
                 
                 // Repeat while the user has not pressed "q" and while there's another frame.
-                while(hasFrame(capture)) {
+                while(OT::Utils::hasFrame(capture)) {
                     // Fetch the next frame.
                     capture.retrieve(frame);
                     frameNumber++;
