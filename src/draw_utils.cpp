@@ -44,5 +44,25 @@ namespace OT {
               line(img, trajectory[i], trajectory[i+1], color, 1, CV_AA, 0);
           }
       }
+      
+      void contourShow(std::string drawingName,
+                       const std::vector<std::vector<cv::Point>>& contours,
+                       const std::vector<cv::Rect>& boundingRect,
+                       cv::Size imgSize) {
+          cv::Mat drawing = cv::Mat::zeros(imgSize, CV_32FC3);
+          for (size_t i = 0; i < contours.size(); i++) {
+              cv::drawContours(drawing,
+                               contours,
+                               i,
+                               cv::Scalar::all(127),
+                               CV_FILLED,
+                               8,
+                               std::vector<cv::Vec4i>(),
+                               0,
+                               cv::Point());
+              OT::DrawUtils::drawBoundingRect(drawing, boundingRect[i]);
+          }
+          cv::imshow(drawingName, drawing);
+      }
   }
 }

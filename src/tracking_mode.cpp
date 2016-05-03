@@ -43,28 +43,7 @@ namespace OT {
                 }
             }
             
-            /**
-             * Draw the contours in a new image and show them.
-             */
-            void contourShow(std::string drawingName,
-                             const std::vector<std::vector<cv::Point>>& contours,
-                             const std::vector<cv::Rect>& boundingRect,
-                             cv::Size imgSize) {
-                cv::Mat drawing = cv::Mat::zeros(imgSize, CV_32FC3);
-                for (size_t i = 0; i < contours.size(); i++) {
-                    cv::drawContours(drawing,
-                                     contours,
-                                     i,
-                                     cv::Scalar::all(127),
-                                     CV_FILLED,
-                                     8,
-                                     std::vector<cv::Vec4i>(),
-                                     0,
-                                     cv::Point());
-                    OT::DrawUtils::drawBoundingRect(drawing, boundingRect[i]);
-                }
-                cv::imshow(drawingName, drawing);
-            }
+            
             
             void run(int argc, char **argv) {
                 // Parse the command line arguments.
@@ -168,7 +147,7 @@ namespace OT {
                     std::vector<cv::Rect> boundRect(contours.size());
                     contourFinder.findContours(frame, hierarchy, contours, mc, boundRect);
                     
-                    contourShow("Contours", contours, boundRect, frame.size());
+                    OT::DrawUtils::contourShow("Contours", contours, boundRect, frame.size());
                     
                     // Update the predicted locations of the objects based on the observed
                     // mass centers.

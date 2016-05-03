@@ -26,6 +26,14 @@ namespace OT {
       void drawTrajectory(const cv::Mat& img,
                           const std::vector<cv::Point>& trajectory,
                           const cv::Scalar color);
+      
+      /**
+       * Draw the contours in a new image and show them.
+       */
+      void contourShow(std::string drawingName,
+                       const std::vector<std::vector<cv::Point>>& contours,
+                       const std::vector<cv::Rect>& boundingRect,
+                       cv::Size imgSize);
   }
 }
 
