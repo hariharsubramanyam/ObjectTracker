@@ -1,14 +1,15 @@
 #ifndef tracking_mode_h
 #define tracking_mode_h
 
+#include "cmdparser.hpp"
+
 /**
  * This program is the main object tracker.
  */
-
 namespace OT {
     namespace Mode {
         namespace Tracking {
-            void run(int argc, char **argv);
+            void run(const cli::Parser& parser);
         }
     }
 }

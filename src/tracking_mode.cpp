@@ -45,14 +45,7 @@ namespace OT {
             
             
             
-            void run(int argc, char **argv) {
-                // Parse the command line arguments.
-                cli::Parser parser(argc, argv);
-                parser.set_optional<std::string>("i", "input",  "", "path to the input video (leave out -w if you use this)");
-                parser.set_optional<std::string>("o", "output", "", "path to the output JSON file");
-                parser.set_optional<int>("w", "webcam", 0, "number to use (leave out -i if you use this)");
-                parser.set_optional<std::vector<int>>("p", "perspective_points", std::vector<int>(), "The perspective points");
-                parser.run_and_exit_if_error();
+            void run(const cli::Parser& parser) {
                 
                 // This does the actual tracking of the objects. We can't initialize it now because
                 // it needs to know the size of the frame. So, we set it equal to nullptr and initialize
@@ -79,6 +72,9 @@ namespace OT {
                 
                 // This will log all of the tracked objects.
                 OT::TrackerLog trackerLog(true);
+                
+                // Determine how to scale the video.
+                int maxDimension = parser.get<int>("d");
                 
                 // Read the first positional command line argument and use that as the video
                 // source. If no argument has been provided, use the webcam.
@@ -129,6 +125,9 @@ namespace OT {
                     frameNumber++;
                     
                     imshow("Original", frame);
+                    
+                    // Scale the image.
+                    OT::Utils::scale(frame, maxDimension);
                     
                     if (hasPerspective) {
                         cv::warpPerspective(frame, frame, perspectiveMatrix, perspectiveSize);
