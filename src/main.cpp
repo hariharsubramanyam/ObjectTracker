@@ -14,6 +14,7 @@
 #include "contour_finder.hpp"
 #include "tracker_log.hpp"
 #include "cmdparser.hpp"
+#include "perspective_transformer.hpp"
 
 
 // The mouse callback to allow the user to draw a rectangle on the screen.
@@ -73,83 +74,6 @@ void contourShow(std::string drawingName,
     cv::imshow(drawingName, drawing);
 }
 
-void orderPoints(cv::Point2f fourPoints[]) {
-    int sums[4];
-    int differences[4];
-    for (int i = 0; i < 4; i++) {
-        sums[i] = fourPoints[i].x + fourPoints[i].y;
-        differences[i] = fourPoints[i].y - fourPoints[i].x;
-    }
-    
-    // Top left has smallest sum, bottom right has largest;
-    cv::Point2f copied[4];
-    int maxSumIndex = 0;
-    int minSumIndex = 0;
-    int maxSum = sums[0];
-    int minSum = sums[0];
-    int minDifferenceIndex = 0;
-    int maxDifferenceIndex = 0;
-    int minDifference = differences[0];
-    int maxDifference = differences[0];
-    for (int i = 0; i < 4; i++) {
-        if (sums[i] < minSum) {
-            minSum = sums[i];
-            minSumIndex = i;
-        }
-        if (sums[i] > maxSum) {
-            maxSum = sums[i];
-            maxSumIndex = i;
-        }
-        if (differences[i] < minDifference) {
-            minDifference = differences[i];
-            minDifferenceIndex = i;
-        }
-        if (differences[i] > maxDifference) {
-            maxDifference = differences[i];
-            maxDifferenceIndex = i;
-        }
-    }
-    
-    copied[0] = fourPoints[minSumIndex];
-    copied[1] = fourPoints[minDifferenceIndex];
-    copied[2] = fourPoints[maxSumIndex];
-    copied[3] = fourPoints[maxDifferenceIndex];
-    
-    for (int i = 0; i < 4; i++) {
-        fourPoints[i] = copied[i];
-    }
-}
-
-cv::Mat getPerspectiveMatrix(cv::Point2f tlOld,
-                             cv::Point2f trOld,
-                             cv::Point2f brOld,
-                             cv::Point2f blOld,
-                             cv::Size& size) {
-    cv::Point2f input[4] = {tlOld, trOld, brOld, blOld};
-    orderPoints(input);
-    
-    auto tl = input[0];
-    auto tr = input[1];
-    auto br = input[2];
-    auto bl = input[3];
-    
-    std::cout << tl << tr << br << bl << std::endl;
-    
-    auto widthA = cv::norm(br - bl);
-    auto widthB = cv::norm(tr - tl);
-    float maxWidth = std::max(widthA, widthB);
-    
-    auto heightA = cv::norm(tr - br);
-    auto heightB = cv::norm(tl - bl);
-    float maxHeight = std::max(heightA, heightB);
-    
-    cv::Point2f output[4] = {{0, 0}, {maxWidth - 1, 0}, {maxWidth - 1, maxHeight - 1}, {0, maxHeight - 1}};
-    size.width = maxWidth;
-    size.height = maxHeight;
-    return cv::getPerspectiveTransform(input, output);
-}
-
-
 int main(int argc, char **argv) {
     // Parse the command line arguments.
     cli::Parser parser(argc, argv);
@@ -200,11 +124,11 @@ int main(int argc, char **argv) {
     cv::Size perspectiveSize;
     if (!perspectivePoints.empty()) {
         hasPerspective = true;
-        std::vector<cv::Point> points;
+        std::vector<cv::Point2f> points;
         for (size_t i = 0; i < 4; i++) {
-            points.push_back(cv::Point(perspectivePoints[i*2], perspectivePoints[i*2+1]));
+            points.push_back(cv::Point2f(perspectivePoints[i*2], perspectivePoints[i*2+1]));
         }
-        perspectiveMatrix = getPerspectiveMatrix(points[0], points[1], points[2], points[3], perspectiveSize);
+        perspectiveMatrix = OT::Perspective::getPerspectiveMatrix(points, perspectiveSize);
     }
     
     // Read the second positional command line argument and use that as the log

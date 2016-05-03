@@ -12,6 +12,7 @@ set( NAME_SRC
     src/contour_finder.cpp
     src/disjoint_set.cpp
     src/tracker_log.cpp
+    src/perspective_transformer.cpp
 )
 
 set( NAME_HEADERS
@@ -24,6 +25,7 @@ set( NAME_HEADERS
     include/tracker_log.hpp
     include/json.hpp
     include/cmdparser.hpp
+    include/perspective_transformer.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
