@@ -28,6 +28,7 @@ set( NAME_HEADERS
     include/cmdparser.hpp
     include/perspective_transformer.hpp
     include/tracking_mode.hpp
+    include/csv.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
