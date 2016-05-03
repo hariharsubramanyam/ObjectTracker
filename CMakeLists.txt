@@ -29,8 +29,3 @@ set( NAME_HEADERS
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 add_executable( main ${NAME_SRC} ${NAME_HEADERS})
 target_link_libraries( main ${OpenCV_LIBS} )
-FIND_LIBRARY(ZMQ_LIBRARY NAMES zmq PATHS
-    /usr/lib
-    /usr/local/lib
-)
-TARGET_LINK_LIBRARIES(main ${ZMQ_LIBRARY})

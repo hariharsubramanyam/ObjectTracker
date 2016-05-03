@@ -15,18 +15,6 @@
 #include "tracker_log.hpp"
 #include "cmdparser.hpp"
 
-#include <zmq.hpp>
-#include <string>
-#include <iostream>
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include <windows.h>
-
-#define sleep(n)    Sleep(n)
-#endif
-
-
 
 // The mouse callback to allow the user to draw a rectangle on the screen.
 bool isDragging = false;
@@ -219,12 +207,6 @@ int main(int argc, char **argv) {
         perspectiveMatrix = getPerspectiveMatrix(points[0], points[1], points[2], points[3], perspectiveSize);
     }
     
-    
-    // Prepare context and socket
-//    zmq::context_t context(1);
-//    zmq::socket_t socket (context, ZMQ_PUB);
-//    socket.bind ("tcp://*:5555");
-    
     // Read the second positional command line argument and use that as the log
     // for the output file.
     std::string outputFilePath = parser.get<std::string>("o");
@@ -288,12 +270,6 @@ int main(int argc, char **argv) {
             if (!outputFilePath.empty()) {
                 trackerLog.addTrack(pred.id, pred.location.x, pred.location.y, frameNumber);
             }
-//            char buffer2 [50];
-//            printf("%d, %d \n", pred.location.x, pred.location.y);
-//            sprintf(buffer2, "x = %d, y = %d", pred.location.x, pred.location.y);
-//            zmq::message_t reply2 (50);
-//            memcpy (reply2.data (), buffer2, 50);
-//            socket.send (reply2);
         }
         
         // Handle mouse callbacks.
