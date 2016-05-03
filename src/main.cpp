@@ -85,12 +85,68 @@ void contourShow(std::string drawingName,
     cv::imshow(drawingName, drawing);
 }
 
-cv::Mat getPerspectiveMatrix(cv::Point2f tl,
-                             cv::Point2f tr,
-                             cv::Point2f br,
-                             cv::Point2f bl,
+void orderPoints(cv::Point2f fourPoints[]) {
+    int sums[4];
+    int differences[4];
+    for (int i = 0; i < 4; i++) {
+        sums[i] = fourPoints[i].x + fourPoints[i].y;
+        differences[i] = fourPoints[i].y - fourPoints[i].x;
+    }
+    
+    // Top left has smallest sum, bottom right has largest;
+    cv::Point2f copied[4];
+    int maxSumIndex = 0;
+    int minSumIndex = 0;
+    int maxSum = sums[0];
+    int minSum = sums[0];
+    int minDifferenceIndex = 0;
+    int maxDifferenceIndex = 0;
+    int minDifference = differences[0];
+    int maxDifference = differences[0];
+    for (int i = 0; i < 4; i++) {
+        if (sums[i] < minSum) {
+            minSum = sums[i];
+            minSumIndex = i;
+        }
+        if (sums[i] > maxSum) {
+            maxSum = sums[i];
+            maxSumIndex = i;
+        }
+        if (differences[i] < minDifference) {
+            minDifference = differences[i];
+            minDifferenceIndex = i;
+        }
+        if (differences[i] > maxDifference) {
+            maxDifference = differences[i];
+            maxDifferenceIndex = i;
+        }
+    }
+    
+    copied[0] = fourPoints[minSumIndex];
+    copied[1] = fourPoints[minDifferenceIndex];
+    copied[2] = fourPoints[maxSumIndex];
+    copied[3] = fourPoints[maxDifferenceIndex];
+    
+    for (int i = 0; i < 4; i++) {
+        fourPoints[i] = copied[i];
+    }
+}
+
+cv::Mat getPerspectiveMatrix(cv::Point2f tlOld,
+                             cv::Point2f trOld,
+                             cv::Point2f brOld,
+                             cv::Point2f blOld,
                              cv::Size& size) {
-    cv::Point2f input[4] = {tl, tr, br, bl};
+    cv::Point2f input[4] = {tlOld, trOld, brOld, blOld};
+    orderPoints(input);
+    
+    auto tl = input[0];
+    auto tr = input[1];
+    auto br = input[2];
+    auto bl = input[3];
+    
+    std::cout << tl << tr << br << bl << std::endl;
+    
     auto widthA = cv::norm(br - bl);
     auto widthB = cv::norm(tr - tl);
     float maxWidth = std::max(widthA, widthB);
@@ -100,6 +156,8 @@ cv::Mat getPerspectiveMatrix(cv::Point2f tl,
     float maxHeight = std::max(heightA, heightB);
     
     cv::Point2f output[4] = {{0, 0}, {maxWidth - 1, 0}, {maxWidth - 1, maxHeight - 1}, {0, maxHeight - 1}};
+    size.width = maxWidth;
+    size.height = maxHeight;
     return cv::getPerspectiveTransform(input, output);
 }
 
@@ -200,7 +258,7 @@ int main(int argc, char **argv) {
         }
         
         // Resize the frame to reduce the time required for computation.
-        cv::resize(frame, frame, cv::Size(300, 300));
+//        cv::resize(frame, frame, cv::Size(300, 300));
         
         // Create the tracker if it isn't created yet.
         if (tracker == nullptr) {
