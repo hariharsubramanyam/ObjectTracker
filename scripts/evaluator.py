@@ -10,7 +10,6 @@ python evaluator.py <ground_truth_file> <prediction_file>
 
 import sys
 import numpy as np
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 from scipy.stats import describe
 
@@ -40,7 +39,7 @@ def predictionForFrame(frame):
     predY = 0
     predFrame = 0
     for prediction in predictions:
-        (framePred, x, y) = prediction
+        (ts, x, y, framePred) = prediction
         if framePred <= frame:
             (predFrame, predX, predY) = (framePred, x, y)
     return (predFrame, predX, predY)
@@ -55,7 +54,7 @@ def error(pair1, pair2):
 # Find the error for each frame of the ground truth.
 frameErrorPairs = []
 for actual in groundTruth:
-    (aTimestamp, ax, ay, aFrame) = actual
+    (aFrame, ax, ay) = actual
     (pFrame, px, py) = predictionForFrame(aFrame)
     frameErrorPairs.append((aFrame, error((ax, ay), (px, py))))
 
