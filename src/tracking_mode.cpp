@@ -133,9 +133,6 @@ namespace OT {
                         cv::warpPerspective(frame, frame, perspectiveMatrix, perspectiveSize);
                     }
                     
-                    // Resize the frame to reduce the time required for computation.
-                    //        cv::resize(frame, frame, cv::Size(300, 300));
-                    
                     // Create the tracker if it isn't created yet.
                     if (tracker == nullptr) {
                         tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
