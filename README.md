@@ -1,5 +1,41 @@
 # ObjectTracker
 
+## Usage
+The main object tracker runs in three modes:
+* tracker = Track objects and optionally put the tracked objects in a tracking file
+* plotter = Use a file with estimated positions and plot the dots on the video
+* annotater = Play video and record ground truth
+
+To run the object tracker first create a directory called `build/` at the project root.
+
+Now, run `start.sh`. This takes in the following command line arguments:
+
+* `-i <path_to_input_video>`
+* `-m <mode>` - The mode should be either `tracker`, `plotter`, or `annotater`
+* `-p <x1 y1 x2 y2 x3 y3 x4 y4>` (optional) - Applies a perspective transform using the four given points
+* `-d <maxSize>` (optional) - Scales the video so that neither the height nor width of the video exceeds maxSize pixels
+* `-s <path_to_support_file` (optional) - If you're in tracker mode, this is where the program will output tracking data. If you're in plotter mode, this is the path to the CSV file with the estimated positions. If you're in annotater mode, this is where the ground truth data will be written.
+
+For example, to run the plotter with a max size and perspective transform, you may do something like this:
+
+```
+./start.sh -m plotter -i ~/myvideo.mov -p 12 123 212 56 12 124 51 213 -d 500 -s ~/myestimatedpositions.csv
+```
+
+### Preprocessing Scripts
+You likely will have to preprocess your data to use it with the tracker. Here are the preprocessing scripts.
+
+* `evaluator.py` - Ignore this for now.
+* `timestamp_to_frame.py` - Use this before you use the plotter. It takes a file with `(timestamp, tracker_id, x, y)` tuples and turns it into a CSV with `(timestamp, x, y, frame)` tuples. Run it as follows
+  * `python timestamp_to_frame.py <estimated_positions_file> <num_frames> <start_ts> <duration>`  
+* `trajectory_smoother.py` - Use after running tracker. This will smooth the trajectories and also compute velocities and accelerations. Run it as follows: 
+  * `python trajectory_smoother.py <path_to_tracker_output_JSON_file> <start_ts> <duration>`
+
+### Video Metadata
+The starting timestamps, durations, and perspective points for the videos. You can find this information in `run_tracker.py` - see the dictionary called `data`.
+
+## Ignore the stuff below for now
+
 ## Note
 This pipeline is still very much a prototype, so please keep that in mind if you'd like to use it. I am still learning computer vision, so I'd appreciate any suggestions on how to improve this pipeline's tracking ability or make it simpler (while maintaining similar performance). Thank you!
 
