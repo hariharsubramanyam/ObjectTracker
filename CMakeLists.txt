@@ -16,6 +16,8 @@ set( NAME_SRC
     src/utils.cpp
     src/tracking_mode.cpp
     src/plotting_mode.cpp
+    src/ground_truth_log.cpp
+    src/ground_truth_mode.cpp
 )
 
 set( NAME_HEADERS
@@ -33,6 +35,8 @@ set( NAME_HEADERS
     include/tracking_mode.hpp
     include/csv.hpp
     include/plotting_mode.hpp
+    include/ground_truth_log.hpp
+    include/ground_truth_mode.hpp
 )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )

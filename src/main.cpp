@@ -1,5 +1,6 @@
 #include "tracking_mode.hpp"
 #include "plotting_mode.hpp"
+#include "ground_truth_mode.hpp"
 
 #include <string>
 
@@ -27,6 +28,8 @@ int main(int argc, char **argv) {
         OT::Mode::Tracking::run(parser);
     } else if (mode == "plotter") {
         OT::Mode::Plotting::run(parser);
+    } else if (mode == "ground_truth") {
+        OT::Mode::GroundTruth::run(parser);
     }
     return 0;
 }

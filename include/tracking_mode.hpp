@@ -4,7 +4,9 @@
 #include "cmdparser.hpp"
 
 /**
- * This program is the main object tracker.
+ * Plots points listed in the (timestamp, x, y, frame) CSV overlaid on a video.
+ * If you have a (timestamp, x, y) file, you can get the frame number by using the
+ * script in scripts/timestamp_to_frame.py.
  */
 namespace OT {
     namespace Mode {
