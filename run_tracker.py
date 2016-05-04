@@ -90,7 +90,7 @@ if args.mode == "tracker":
     if args.perspective:
         smoothOutputFile = smoothedPathPerspectiveUrl
     if args.out:
-        argumentTuple = [trackerFile, timestamp, duration, smoothedPathUrl]
+        argumentTuple = [trackerFile, timestamp, duration, smoothOutputFile]
         formatString = "python scripts/trajectory_smoother.py %s %s %s > %s"
         command = (formatString % tuple(argumentTuple))
         os.system(command)
