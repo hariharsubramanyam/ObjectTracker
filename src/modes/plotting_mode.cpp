@@ -1,4 +1,4 @@
-#include "plotting_mode.hpp"
+#include "modes/plotting_mode.hpp"
 
 #include <string>
 #include <vector>
@@ -6,10 +6,10 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "cmdparser.hpp"
-#include "csv.hpp"
-#include "utils.hpp"
-#include "perspective_transformer.hpp"
+#include "lib/cmdparser.hpp"
+#include "lib/csv.hpp"
+#include "utils/utils.hpp"
+#include "utils/perspective_transformer.hpp"
 
 /**
  * Plots points listed in the (timestamp, x, y, frame) CSV overlaid on a video.

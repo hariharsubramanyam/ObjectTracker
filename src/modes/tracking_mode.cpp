@@ -1,4 +1,4 @@
-#include "tracking_mode.hpp"
+#include "modes/tracking_mode.hpp"
 
 #include <iostream>
 #include <vector>
@@ -9,14 +9,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include "draw_utils.hpp"
-#include "kalman_tracker.hpp"
-#include "multi_object_tracker.hpp"
-#include "contour_finder.hpp"
-#include "tracker_log.hpp"
-#include "cmdparser.hpp"
-#include "utils.hpp"
-#include "perspective_transformer.hpp"
+#include "utils/draw_utils.hpp"
+#include "tracker/kalman_tracker.hpp"
+#include "tracker/multi_object_tracker.hpp"
+#include "tracker/contour_finder.hpp"
+#include "tracker/tracker_log.hpp"
+#include "lib/cmdparser.hpp"
+#include "utils/utils.hpp"
+#include "utils/perspective_transformer.hpp"
 
 namespace OT {
     namespace Mode {

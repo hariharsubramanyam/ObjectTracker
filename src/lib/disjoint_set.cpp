@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-#include "disjoint_set.hpp"
+#include "lib/disjoint_set.hpp"
 
 
 DisjointSets::DisjointSets()

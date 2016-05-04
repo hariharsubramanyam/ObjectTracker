@@ -1,11 +1,11 @@
-#include "tracker_log.hpp"
+#include "tracker/tracker_log.hpp"
 
 #include <unordered_map>
 #include <vector>
 #include <fstream>
 #include <algorithm>
 
-#include "json.hpp"
+#include "lib/json.hpp"
 
 namespace OT {
     TrackerLog::TrackerLog(bool compress) {

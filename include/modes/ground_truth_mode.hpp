@@ -1,7 +1,7 @@
 #ifndef ground_truth_mode_h
 #define ground_truth_mode_h
 
-#include "cmdparser.hpp"
+#include "lib/cmdparser.hpp"
 
 /**
  * This mode lets you collect ground truth positions for an object by following

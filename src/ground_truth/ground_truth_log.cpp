@@ -1,4 +1,4 @@
-#include "ground_truth_log.hpp"
+#include "ground_truth/ground_truth_log.hpp"
 
 #include <vector>
 

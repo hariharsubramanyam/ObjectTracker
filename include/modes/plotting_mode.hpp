@@ -1,7 +1,7 @@
 #ifndef plotting_mode_h
 #define plotting_mode_h
 
-#include "cmdparser.hpp"
+#include "lib/cmdparser.hpp"
 
 /**
  * This program is the main object tracker.

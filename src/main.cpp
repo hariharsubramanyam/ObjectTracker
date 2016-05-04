@@ -1,10 +1,10 @@
-#include "tracking_mode.hpp"
-#include "plotting_mode.hpp"
-#include "ground_truth_mode.hpp"
+#include "modes/tracking_mode.hpp"
+#include "modes/plotting_mode.hpp"
+#include "modes/ground_truth_mode.hpp"
 
 #include <string>
 
-#include "cmdparser.hpp"
+#include "lib/cmdparser.hpp"
 
 int main(int argc, char **argv) {
     // Parse the command line arguments.

@@ -1,7 +1,7 @@
 #ifndef tracking_mode_h
 #define tracking_mode_h
 
-#include "cmdparser.hpp"
+#include "lib/cmdparser.hpp"
 
 /**
  * Plots points listed in the (timestamp, x, y, frame) CSV overlaid on a video.

@@ -1,9 +1,9 @@
+#include "tracker/kalman_tracker.hpp"
+
 #include <memory>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
-
-#include "kalman_tracker.hpp"
 
 #include <vector>
 #include <stdlib.h>     /* srand, rand */

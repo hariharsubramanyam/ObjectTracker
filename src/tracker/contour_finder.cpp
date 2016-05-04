@@ -1,4 +1,4 @@
-#include "contour_finder.hpp"
+#include "tracker/contour_finder.hpp"
 
 #include <numeric>
 #include <unordered_map>
@@ -6,7 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include "disjoint_set.hpp"
+#include "lib/disjoint_set.hpp"
 
 namespace OT {
     ContourFinder::ContourFinder(int history,

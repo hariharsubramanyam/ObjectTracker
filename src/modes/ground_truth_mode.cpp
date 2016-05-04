@@ -1,11 +1,11 @@
-#include "ground_truth_mode.hpp"
+#include "modes/ground_truth_mode.hpp"
 
 #include <opencv2/opencv.hpp>
 
-#include "cmdparser.hpp"
-#include "ground_truth_log.hpp"
-#include "utils.hpp"
-#include "perspective_transformer.hpp"
+#include "lib/cmdparser.hpp"
+#include "ground_truth/ground_truth_log.hpp"
+#include "utils/utils.hpp"
+#include "utils/perspective_transformer.hpp"
 
 namespace OT {
     namespace Mode {

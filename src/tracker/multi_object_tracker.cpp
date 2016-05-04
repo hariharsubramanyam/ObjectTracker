@@ -1,4 +1,4 @@
-#include "multi_object_tracker.hpp"
+#include "tracker/multi_object_tracker.hpp"
 
 #include <memory>
 #include <vector>
@@ -6,8 +6,8 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "kalman_tracker.hpp"
-#include "hungarian.hpp"
+#include "tracker/kalman_tracker.hpp"
+#include "lib/hungarian.hpp"
 
 namespace OT {
     MultiObjectTracker::MultiObjectTracker(cv::Size frameSize,
