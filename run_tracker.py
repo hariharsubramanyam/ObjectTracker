@@ -37,6 +37,30 @@ data = {
      "3 391 278 17 488 20 641 455",
      "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection2/Walker2/input_for_eric.csv",
      "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection2/Walker2/input_for_eric_perspective.csv"
+     ),
+    "court1":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard1/Courtyard1.mov",
+     1462375212.026118, 172,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard1/tracker.json",
+     "110 473 307 155 619 178 631 472",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard1/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard1/input_for_eric_perspective.csv"
+     ),
+    "court2":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard2/Courtyard2.mov",
+     1462375480.266197, 151,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard2/tracker.json",
+     "110 473 307 155 619 178 631 472",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard2/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard2/input_for_eric_perspective.csv"
+     ),
+    "court3":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard3/Courtyard3.mov",
+     1462375734.968232, 185,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard3/tracker.json",
+     "110 473 307 155 619 178 631 472",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard3/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection3/Courtyard3/input_for_eric_perspective.csv"
      )
 }
 
