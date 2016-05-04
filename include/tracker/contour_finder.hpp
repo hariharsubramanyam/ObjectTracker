@@ -63,7 +63,7 @@ namespace OT {
                       int nMixtures = 3,
                       float contourSizeThreshold = 0.1,
                       int medianFilterSize = 9,
-                      float contourMergeThreshold = 0.03);
+                      float contourMergeThreshold = 0.01);
         
         /**
          * Find contours representing the objects in the frame.
