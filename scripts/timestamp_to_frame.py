@@ -34,7 +34,7 @@ def frameForTimestamp(timestamp):
 # Create the output file.
 print "timestamp, x, y, frame"
 for line in parsedLines:
-    (timestamp, x, y) = line
+    (timestamp, tracker_id, x, y) = line
     outputTuple = (timestamp, int(x), int(y), frameForTimestamp(timestamp))
     outputTuple = [str(t) for t in outputTuple]
     print ",".join(outputTuple)
