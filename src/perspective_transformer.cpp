@@ -87,5 +87,16 @@ namespace OT {
             // Create the matrix.
             return cv::getPerspectiveTransform(fourPoints, output);
         }
+        
+        void extractFourPoints(const std::vector<int> &ints,
+                               std::vector<cv::Point2f> &points) {
+            if (ints.size() != 8) {
+                return;
+            }
+            points.clear();
+            for (size_t i = 0; i < 4; i++) {
+                points.push_back(cv::Point2f(ints[i*2], ints[i*2+1]));
+            }
+        }
     }
 }

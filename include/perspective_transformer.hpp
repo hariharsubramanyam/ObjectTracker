@@ -22,6 +22,12 @@ namespace OT {
          */
         cv::Mat getPerspectiveMatrix(std::vector<cv::Point2f>& fourPoints,
                                      cv::Size& size);
+        
+        /**
+         * Given a vector of 8 ints, convert them into four points.
+         */
+        void extractFourPoints(const std::vector<int> &ints,
+                               std::vector<cv::Point2f> &points);
     }
 }
 

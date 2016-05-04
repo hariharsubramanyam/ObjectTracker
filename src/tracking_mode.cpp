@@ -76,9 +76,8 @@ namespace OT {
                 // Determine how to scale the video.
                 int maxDimension = parser.get<int>("d");
                 
-                // Read the first positional command line argument and use that as the video
-                // source. If no argument has been provided, use the webcam.
-                if (parser.get<std::string>("i").empty()) {
+                // Read from the webcam or the parser.
+                if (parser.get<int>("w") != -1) {
                     capture.open(parser.get<int>("w"));
                 } else {
                     capture.open(parser.get<std::string>("i"));
@@ -86,21 +85,17 @@ namespace OT {
                 
                 // Get the perspective transform, if there is one.
                 auto perspectivePoints = parser.get<std::vector<int>>("p");
-                bool hasPerspective = false;
                 cv::Mat perspectiveMatrix;
                 cv::Size perspectiveSize;
-                if (!perspectivePoints.empty()) {
-                    hasPerspective = true;
-                    std::vector<cv::Point2f> points;
-                    for (size_t i = 0; i < 4; i++) {
-                        points.push_back(cv::Point2f(perspectivePoints[i*2], perspectivePoints[i*2+1]));
-                    }
+                std::vector<cv::Point2f> points;
+                OT::Perspective::extractFourPoints(perspectivePoints, points);
+                if (!points.empty()) {
                     perspectiveMatrix = OT::Perspective::getPerspectiveMatrix(points, perspectiveSize);
                 }
                 
                 // Read the second positional command line argument and use that as the log
                 // for the output file.
-                std::string outputFilePath = parser.get<std::string>("o");
+                std::string outputFilePath = parser.get<std::string>("s");
                 std::ofstream outputFile;
                 if (!outputFilePath.empty()) {
                     outputFile.open(outputFilePath);
@@ -126,12 +121,13 @@ namespace OT {
                     
                     imshow("Original", frame);
                     
-                    // Scale the image.
-                    OT::Utils::scale(frame, maxDimension);
-                    
-                    if (hasPerspective) {
+                    // Do the perspective transform.
+                    if (!points.empty()) {
                         cv::warpPerspective(frame, frame, perspectiveMatrix, perspectiveSize);
                     }
+                    
+                    // Scale the image.
+                    OT::Utils::scale(frame, maxDimension);
                     
                     // Create the tracker if it isn't created yet.
                     if (tracker == nullptr) {
