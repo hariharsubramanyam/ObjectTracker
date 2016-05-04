@@ -134,6 +134,9 @@ namespace OT {
                         tracker = std::make_unique<OT::MultiObjectTracker>(cv::Size(frame.rows, frame.cols));
                     }
                     
+                    // Set the frame dimension.
+                    trackerLog.setDimensions(frame.cols, frame.rows);
+                    
                     // Find the contours.
                     std::vector<cv::Point2f> mc(contours.size());
                     std::vector<cv::Rect> boundRect(contours.size());

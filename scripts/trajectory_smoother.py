@@ -23,12 +23,15 @@ args = parser.parse_args()
 
 # The first positional argument is the path to the JSON file.
 data = json.load(open(args.input))
+width = data["width"]
+height = data["height"]
 
 
 def smoothTrajectory(track, sigma=51):
+    global width, height
     trackNp = np.array(track, dtype=float).transpose()
     xvals = gaussian_filter(trackNp[0], sigma)
-    yvals = gaussian_filter(300 - trackNp[1], sigma)
+    yvals = gaussian_filter(height - trackNp[1], sigma)
     return zip(xvals, yvals, trackNp[2])
 
 

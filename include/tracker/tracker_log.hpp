@@ -26,6 +26,10 @@ namespace OT {
         
         // Whether the JSON output should be compressed (i.e. no spaces, no keys for tracks).
         bool compress;
+        
+        // Capture the dimensions of the frame.
+        int width;
+        int height;
     public:
         TrackerLog(bool compress = false);
         
@@ -34,6 +38,9 @@ namespace OT {
         
         // Output the log to the given file as JSON.
         void logToFile(std::ofstream& outputStream);
+        
+        // Set the frame dimensions.
+        void setDimensions(int width, int height);
     };
 }
 

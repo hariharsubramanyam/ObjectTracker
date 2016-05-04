@@ -36,6 +36,8 @@ namespace OT {
         // Sort the trackers by birth frame number.
         nlohmann::json json;
         json["numFrames"] = this->numFrames;
+        json["width"] = this->width;
+        json["height"] = this->height;
         
         
         // Create a vector of pairs.
@@ -69,5 +71,10 @@ namespace OT {
         
         auto output = this->compress ? json.dump() : json.dump(2);
         outputStream << output << std::endl;
+    }
+    
+    void TrackerLog::setDimensions(int width, int height) {
+        this->width = width;
+        this->height = height;
     }
 }
