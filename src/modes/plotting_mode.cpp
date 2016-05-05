@@ -56,10 +56,20 @@ namespace OT {
                 std::vector<TrackEntry> track;
                 readCsv(parser.get<std::string>("s"), track);
                 
+                // Read the second track if there is one.
+                std::vector<TrackEntry> track2;
+                if (!parser.get<std::string>("s2").empty()) {
+                    readCsv(parser.get<std::string>("s2"), track2);
+                }
+                
                 // Create a mapping from frame number to TrackEntry.
                 std::unordered_map<long, TrackEntry> entryForFrame;
+                std::unordered_map<long, TrackEntry> entryForFrame2;
                 for (auto entry : track) {
                     entryForFrame.insert(std::make_pair(entry.frameNumber, entry));
+                }
+                for (auto entry : track2) {
+                    entryForFrame2.insert(std::make_pair(entry.frameNumber, entry));
                 }
                 
                 // Open the video.
@@ -72,6 +82,7 @@ namespace OT {
                 
                 // Current track entry.
                 TrackEntry currentTrackEntry{0, 0, 0, 0};
+                TrackEntry currentTrackEntry2{0, 0, 0, 0};
                 
                 // Determine how to scale the video.
                 int maxDimension = parser.get<int>("d");
@@ -105,6 +116,10 @@ namespace OT {
                         currentTrackEntry = entryForFrame.at(frameNumber);
                     }
                     
+                    if (entryForFrame2.find(frameNumber) != entryForFrame.end()) {
+                        currentTrackEntry2 = entryForFrame2.at(frameNumber);
+                    }
+                    
                     // If we have something to draw this frame, draw it.
                     cv::circle(frame,
                                cv::Point(currentTrackEntry.x, frame.rows - currentTrackEntry.y),
@@ -112,6 +127,14 @@ namespace OT {
                                cv::Scalar::all(255),
                                -1);
                     
+                    if (currentTrackEntry2.x != 0 && currentTrackEntry2.y != 0) {
+                        cv::circle(frame,
+                                   cv::Point(currentTrackEntry2.x, frame.rows - currentTrackEntry2.y),
+                                   4,
+                                   cv::Scalar::all(255),
+                                   -1);
+                    }
+                
                     imshow("Video", frame);
                 }
 

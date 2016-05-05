@@ -20,6 +20,9 @@ int main(int argc, char **argv) {
     // Arguments for tracker mode.
     parser.set_optional<int>("w", "webcam", -1, "number to use (this will override -i)");
     
+    // Arguments for plotter mode.
+    parser.set_optional<std::string>("s2", "track_file_2", "", "The second track file for the plotter");
+    
     parser.run_and_exit_if_error();
     
     auto mode = parser.get<std::string>("m");
