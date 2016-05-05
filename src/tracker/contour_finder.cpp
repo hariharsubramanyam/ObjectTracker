@@ -18,7 +18,7 @@ namespace OT {
         this->bg->setHistory(history);
         this->bg->setNMixtures(nMixtures);
         this->bg->setDetectShadows(true);
-        this->bg->setShadowThreshold(0.5);
+        this->bg->setShadowThreshold(0.7);
         this->suppressRectangles = std::vector<cv::Rect>();
         this->contourSizeThreshold = contourSizeThreshold;
         this->medianFilterSize = medianFilterSize;

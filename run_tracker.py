@@ -3,8 +3,47 @@
 import sys
 import os
 import argparse
-
 data = {
+    "stata1":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata1/stata1.mov",
+     1461811541.050154, 244,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata1/tracker.json",
+     "67 471 248 205 588 220 717 478",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata1/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata1/input_for_eric_perspective.csv"
+     ),
+    "stata2":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata2/stata2.mov",
+     1461811906.243576, 275,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata2/tracker.json",
+     "67 476 261 175 608 182 719 475",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata2/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata2/input_for_eric_perspective.csv"
+     ),
+    "stata3":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata3/stata3.mov",
+     1461812418.383915, 217,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata3/tracker.json",
+     "62 478 262 178 600 188 719 473",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata3/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Stata3/input_for_eric_perspective.csv"
+     ),
+    "chem1":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem1/chem1.mov",
+     1461809912.643582, 209,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem1/tracker.json",
+     "DON'T DO PERSPECTIVE",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem1/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem1/input_for_eric_perspective.csv"
+     ),
+    "chem2":
+    ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem2/chem2.mov",
+     1461810598.068358, 237,
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem2/tracker.json",
+     "DON'T DO PERSPECTIVE",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem2/input_for_eric.csv",
+     "~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection1/Chem2/input_for_eric_perspective.csv"
+     ),
     "lobby71":
     ("~/Dropbox/6.S062\ Final\ Project\ Videos/MITDataCollection2/Lobby7_1/Lobby7_1.mov",
      1462273804.346465, 180,
