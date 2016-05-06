@@ -31,7 +31,8 @@ namespace OT {
         this->dt = dt;
     }
     
-    void MultiObjectTracker::update(const std::vector<cv::Point2f>& massCenters,
+    void MultiObjectTracker::update(cv::Mat &frame,
+                                    const std::vector<cv::Point2f>& massCenters,
                                     const std::vector<cv::Rect>& boundingRects,
                                     std::vector<OT::TrackingOutput>& trackingOutputs) {
         trackingOutputs.clear();
@@ -152,6 +153,7 @@ namespace OT {
             this->kalmanTrackers[i].predict();
             if (assignment[i] != -1) {
                 this->kalmanTrackers[i].correct(massCenters[assignment[i]]);
+                this->kalmanTrackers[i].updateWithBox(boundingRects[assignment[i]], frame);
                 this->kalmanTrackers[i].gotUpdate();
             }
         }

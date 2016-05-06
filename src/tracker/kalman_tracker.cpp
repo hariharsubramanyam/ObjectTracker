@@ -119,4 +119,32 @@ namespace OT {
                   std::back_inserter(output.trajectory));
         return output;
     }
+    
+    void KalmanTracker::updateWithBox(cv::Rect boundingRect,
+                                      const cv::Mat &frame) {
+        cv::Mat roi = frame(boundingRect);
+        cv::Mat roiHsv;
+        cv::cvtColor(roi, roiHsv, CV_BGR2HSV);
+        std::vector<cv::Mat> hsvPlanes;
+        cv::split(roiHsv, hsvPlanes);
+        
+        int histSize = 256;
+        float range[] = {0, 256};
+        const float* histRange = {range};
+        bool uniform = true;
+        bool accumulate = false;
+    
+        cv::calcHist(&hsvPlanes[0],
+                     1,
+                     0,
+                     cv::Mat(),
+                     this->histogram,
+                     1,
+                     &histSize,
+                     &histRange,
+                     uniform,
+                     accumulate);
+
+        
+    }
 }

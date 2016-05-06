@@ -41,6 +41,9 @@ namespace OT {
         // The unique color associated with this Kalman tracker.
         cv::Scalar color;
         
+        // The latest hue histogram for this image.
+        cv::Mat histogram;
+        
         void addPointToTrajectory(cv::Point pt);
     public:
         KalmanTracker(cv::Point startPt,
@@ -58,6 +61,10 @@ namespace OT {
         
         // Return the number of frames that this Kalman tracker has been alive.
         long getLifetime();
+        
+        // Update the histogram for this tracker.
+        void updateWithBox(cv::Rect boundingRect,
+                           const cv::Mat &frame);
         
         cv::Point predict();
         cv::Point latestPrediction();

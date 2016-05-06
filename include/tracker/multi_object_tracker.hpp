@@ -63,7 +63,8 @@ namespace OT {
                            float ageSuppressionThreshold = 2);
         
         // Update the object tracker with the mass centers of the observed boundings rects.
-        void update(const std::vector<cv::Point2f>& massCenters,
+        void update(cv::Mat &frame,
+                    const std::vector<cv::Point2f>& massCenters,
                     const std::vector<cv::Rect>& boundingRects,
                     std::vector<OT::TrackingOutput>& trackingOutputs);
     };

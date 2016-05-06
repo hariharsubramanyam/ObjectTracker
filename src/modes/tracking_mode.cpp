@@ -147,7 +147,7 @@ namespace OT {
                     // Update the predicted locations of the objects based on the observed
                     // mass centers.
                     std::vector<OT::TrackingOutput> predictions;
-                    tracker->update(mc, boundRect, predictions);
+                    tracker->update(frame, mc, boundRect, predictions);
                     
                     for (auto pred : predictions) {
                         // Draw a cross at the location of the prediction.
