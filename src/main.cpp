@@ -9,7 +9,7 @@
 int main(int argc, char **argv) {
     // Parse the command line arguments.
     cli::Parser parser(argc, argv);
-    parser.set_required<std::string>("m", "The mode that the tracker should be run in: either tracker, plotter, annotater");
+    parser.set_required<std::string>("m", "The mode that the tracker should be run in: either tracker, plotter, ground_truth");
     
     // Arguments common to all modes.
     parser.set_required<std::string>("i", "input video");
